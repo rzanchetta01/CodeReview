@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31702.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api-CodeReview", "Api-CodeReview\Api-CodeReview.csproj", "{34A2A9D1-D453-4F92-A764-943B8E23C8A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{34A2A9D1-D453-4F92-A764-943B8E23C8A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34A2A9D1-D453-4F92-A764-943B8E23C8A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34A2A9D1-D453-4F92-A764-943B8E23C8A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34A2A9D1-D453-4F92-A764-943B8E23C8A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {904A4130-A8F4-4972-8963-617F0A7B612B}
+	EndGlobalSection
+EndGlobal
