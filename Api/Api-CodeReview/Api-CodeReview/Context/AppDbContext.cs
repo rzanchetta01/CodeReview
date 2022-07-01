@@ -7,7 +7,11 @@ namespace Api_CodeReview.Context
 {
     public class AppDbContext : DbContext
     {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<Repositorio> Repositorios { get; set; }
+        public DbSet<Commit> Commits { get; set; }
+        public DbSet<Branch> Branchs { get; set; }
+        public DbSet<SLA> SLAS { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -16,7 +20,7 @@ namespace Api_CodeReview.Context
                 .AddJsonFile("appsettings.json", false, false)
                 .Build();
 
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DEV_Code_Review"));
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DEV_CodeReview"));
         }
     }
 }
