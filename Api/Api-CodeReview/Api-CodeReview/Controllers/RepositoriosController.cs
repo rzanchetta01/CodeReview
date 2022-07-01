@@ -84,9 +84,6 @@ namespace Api_CodeReview.Controllers
         [HttpPost]
         public async Task<ActionResult<Repositorio>> PostRepositorio(Repositorio repositorio)
         {
-            if (!ModelState.IsValid)
-                return BadRequest("Inserção de dados inválida");
-            
             _context.Repositorios.Add(repositorio);
             await _context.SaveChangesAsync();
 
