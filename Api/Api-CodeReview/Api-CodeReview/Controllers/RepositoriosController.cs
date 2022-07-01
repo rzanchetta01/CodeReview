@@ -25,14 +25,20 @@ namespace Api_CodeReview.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Repositorio>>> GetRepositorios()
         {
-            return await _context.Repositorios.ToListAsync();
+            return await _context
+                                .Repositorios
+                                .AsNoTracking()
+                                .ToListAsync();
         }
 
         // GET: api/Repositorios/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Repositorio>> GetRepositorio(int id)
+        public async Task<ActionResult<Repositorio>> GetByIdRepositorio(int id)
         {
-            var repositorio = await _context.Repositorios.FindAsync(id);
+            var repositorio = await _context
+                                            .Repositorios
+                                            .AsNoTracking()
+                                            .FirstOrDefaultAsync(x => x.Id_repositorio == id);
 
             if (repositorio == null)
             {
