@@ -94,11 +94,17 @@ namespace Api_CodeReview.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRepositorio(int id)
         {
+            //var branch = await _context.Branchs.FindAsync(id);
             var repositorio = await _context.Repositorios.FindAsync(id);
             if (repositorio == null)
             {
                 return NotFound();
             }
+
+            //if ( repositorio.Id_repositorio == branch.Id_repositorio)
+            //{
+            //    return StatusCode(203);
+            //}
 
             _context.Repositorios.Remove(repositorio);
             await _context.SaveChangesAsync();

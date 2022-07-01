@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Api_CodeReview.Models
 {
-    [Table("tbBrach")]
+    [Table("tbBranch")]
     public class Branch
     {
         [Key]
