@@ -1,5 +1,7 @@
-﻿using System;
+﻿using LibGit2Sharp;
+using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -12,7 +14,46 @@ namespace ExecutavelGitAnalyzer.Email
     {
         private static readonly string hostEmail = "smtp-mail.outlook.com";
 
-        public static void SendEmail(BaseEmailConfig baseEmailConfig, BaseEmail baseEmail)
+        public static void SendNewCommitEmail(string conteudo, string autor, string branch)
+        {
+            BaseEmail bs = new();
+            bs.IsHtml = false;
+            bs.Conteudo = conteudo;
+
+            BaseEmailConfig bsc = new();
+            bsc.Usuario = ConfigurationManager.AppSettings["username"];
+            bsc.Senha = ConfigurationManager.AppSettings["password"];
+            bsc.Prioridade = System.Net.Mail.MailPriority.Normal;
+            bsc.Titulo = @$"NOVO REVIEW DE COMMIT NA BRANCH {branch} // AUTOR {autor}";
+            bsc.To = new string[] {"rzanchetta02@gmail.com"};
+            bsc.Cc = null;
+            bsc.From = ConfigurationManager.AppSettings["username"];
+            bsc.FromNome = ConfigurationManager.AppSettings["name"];
+
+            SendEmail(bsc, bs);
+        }
+
+        public static void SendSlaEmail()
+        {
+
+            BaseEmail bs = new();
+            bs.IsHtml = false;
+            bs.Conteudo = null;
+
+            BaseEmailConfig bsc = new();
+            bsc.Usuario = ConfigurationManager.AppSettings["username"];
+            bsc.Senha = ConfigurationManager.AppSettings["password"];
+            bsc.Prioridade = System.Net.Mail.MailPriority.Normal;
+            bsc.Titulo = null;
+            bsc.To = null;
+            bsc.Cc = null;
+            bsc.From = ConfigurationManager.AppSettings["username"];
+            bsc.FromNome = ConfigurationManager.AppSettings["name"];
+
+            SendEmail(bsc, bs);
+        }
+
+        private static void SendEmail(BaseEmailConfig baseEmailConfig, BaseEmail baseEmail)
         {
             MailMessage msg = ConstructEmail(baseEmailConfig, baseEmail);
             Send(msg, baseEmailConfig);
@@ -47,13 +88,6 @@ namespace ExecutavelGitAnalyzer.Email
             msg.BodyEncoding = Encoding.UTF8;
             msg.SubjectEncoding = Encoding.UTF8;
 
-            if (email.NomeAnexo != null)
-            {
-                Attachment data = new(email.NomeAnexo,
-                                                 MediaTypeNames.Application.Zip);
-                msg.Attachments.Add(data);
-            }
-
             return msg;
 
         }
@@ -69,13 +103,19 @@ namespace ExecutavelGitAnalyzer.Email
             client.Port = 587;
             client.EnableSsl = true;
 
-            try { client.Send(msg); }
+            try 
+            { 
+                client.Send(msg);
+            }
             catch (Exception e)
             {
                 Console.WriteLine("ERRO AO ENVIAR EMAIL: {0}", e.Message);
                 throw;
             }
             msg.Dispose();
+            Console.WriteLine("ENVIADO");
+            System.Threading.Thread.Sleep(50000);
         }
+
     }
 }

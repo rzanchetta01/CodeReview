@@ -10,6 +10,5 @@ namespace ExecutavelGitAnalyzer.Email
     {
         public bool IsHtml { get; set; }
         public string Conteudo { get; set; }
-        public string NomeAnexo { get; set; }
     }
 }

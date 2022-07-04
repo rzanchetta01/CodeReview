@@ -1,6 +1,7 @@
 ﻿using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,13 +16,20 @@ namespace ExecutavelGitAnalyzer
             Util.Tools.CmdCommand(cmdCommand);
         }
 
-        public static string[] ListRepos()
+        private static string[] ListRepos()
         {
             //string command = @"/C cd repos && dir";
             //Util.Tools.CmdCommand(command);
             string path = AppDomain.CurrentDomain.BaseDirectory;
-            string[] mockReturn = { @$"{path}\repos\eSeg_Vida_1841" };
-            return mockReturn;
+            path = @$"{path}\repos";
+
+            string[] repos = Directory.GetDirectories(path);
+            Console.WriteLine($"LENDO TODOS OS REPOS");
+            foreach (var item in repos)
+            {
+                Console.Write(item + "\n");
+            }
+            return repos;
         }
 
         public static void ReadAllRepos()
@@ -32,16 +40,32 @@ namespace ExecutavelGitAnalyzer
                 {
                     foreach (var branch in repos.Branches)
                     {
-                        Console.WriteLine(branch.Commits.ElementAt(0).Message);
+                        var repName = folder;
+                        repName = repName.Remove(0, 78); //PREVISTO DAR ERRO NO FUTURO
+
+                        if(branch.FriendlyName.Contains("AD_Integracao_VT_BizFlow"))
+                            AnalyzeNewCommit(branch, repName);
                     }
 
                 }
             }
         }
 
-        public static void AnalyzeNewCommit()
+        private static void AnalyzeNewCommit(Branch branch, string repoName)
         {
+            Commit commit = branch.Commits.ElementAtOrDefault(0);
+            string link = @"https://tfs.seniorsolution.com.br/Eseg/_git/" + repoName + @$"/commit/{commit.Id}?refName=refs%2Fheads%2F{branch.FriendlyName}";
 
+                var conteudo =
+                $"Um novo commit foi registrado\n" +
+                $"{commit.Author.Name} | {commit.Author.Email} " +
+                $"{commit.Author.When.DateTime} " +
+                $"{commit.MessageShort} " +
+                $"{branch.FriendlyName} " +
+                $"{link}";
+
+            Console.WriteLine("Novo commit encontrado, disparando email");
+            Email.EmailOperations.SendNewCommitEmail(conteudo, commit.Author.Name, branch.FriendlyName);
         }
 
     }
