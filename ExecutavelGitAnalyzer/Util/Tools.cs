@@ -33,16 +33,14 @@ namespace ExecutavelGitAnalyzer.Util
 
         public static void CmdCommand(string command)
         {
-            using (var process = new System.Diagnostics.Process())
-            {
-                System.Diagnostics.ProcessStartInfo startInfo = new();
-                startInfo.FileName = "CMD.exe";
-                startInfo.Arguments = command;
+            using var process = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfo = new();
+            startInfo.FileName = "CMD.exe";
+            startInfo.Arguments = command;
 
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
-            }
+            process.StartInfo = startInfo;
+            process.Start();
+            process.WaitForExit();
         }
     }
 }

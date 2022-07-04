@@ -16,10 +16,22 @@ namespace ExecutavelGitAnalyzer
             Util.Tools.CmdCommand(cmdCommand);
         }
 
+        public static void ReadAllRepos()
+        {
+            foreach (var folder in ListRepos())
+            {
+                using var repos = new Repository(folder);
+                foreach (var branch in repos.Branches)
+                {
+                    var repName = folder;
+                    repName = repName.Remove(0, Util.Tools.GetReposPath(false).Length + 1);
+                    AnalyzeNewCommit(branch, repName);
+                }
+            }
+        }
+
         private static string[] ListRepos()
         {
-            //string command = @"/C cd repos && dir";
-            //Util.Tools.CmdCommand(command);
             string path = AppDomain.CurrentDomain.BaseDirectory;
             path = @$"{path}\repos";
 
@@ -30,25 +42,6 @@ namespace ExecutavelGitAnalyzer
                 Console.Write(item + "\n");
             }
             return repos;
-        }
-
-        public static void ReadAllRepos()
-        {
-            foreach (var folder in ListRepos())
-            {
-                using(var repos = new Repository(folder))
-                {
-                    foreach (var branch in repos.Branches)
-                    {
-                        var repName = folder;
-                        repName = repName.Remove(0, 78); //PREVISTO DAR ERRO NO FUTURO
-
-                        if(branch.FriendlyName.Contains("AD_Integracao_VT_BizFlow"))
-                            AnalyzeNewCommit(branch, repName);
-                    }
-
-                }
-            }
         }
 
         private static void AnalyzeNewCommit(Branch branch, string repoName)

@@ -1,12 +1,7 @@
-﻿using LibGit2Sharp;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Configuration;
-using System.Linq;
 using System.Net.Mail;
-using System.Net.Mime;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ExecutavelGitAnalyzer.Email
 {
@@ -23,7 +18,7 @@ namespace ExecutavelGitAnalyzer.Email
             BaseEmailConfig bsc = new();
             bsc.Usuario = ConfigurationManager.AppSettings["username"];
             bsc.Senha = ConfigurationManager.AppSettings["password"];
-            bsc.Prioridade = System.Net.Mail.MailPriority.Normal;
+            bsc.Prioridade = MailPriority.Normal;
             bsc.Titulo = @$"NOVO REVIEW DE COMMIT NA BRANCH {branch} // AUTOR {autor}";
             bsc.To = new string[] {"rzanchetta02@gmail.com"};
             bsc.Cc = null;
@@ -43,7 +38,7 @@ namespace ExecutavelGitAnalyzer.Email
             BaseEmailConfig bsc = new();
             bsc.Usuario = ConfigurationManager.AppSettings["username"];
             bsc.Senha = ConfigurationManager.AppSettings["password"];
-            bsc.Prioridade = System.Net.Mail.MailPriority.Normal;
+            bsc.Prioridade = MailPriority.Normal;
             bsc.Titulo = null;
             bsc.To = null;
             bsc.Cc = null;
@@ -113,8 +108,8 @@ namespace ExecutavelGitAnalyzer.Email
                 throw;
             }
             msg.Dispose();
-            Console.WriteLine("ENVIADO");
-            System.Threading.Thread.Sleep(50000);
+            Console.WriteLine("EMAIL ENVIADO");
+            System.Threading.Thread.Sleep(50000);//Delay para evitar spam
         }
 
     }
