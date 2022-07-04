@@ -25,14 +25,20 @@ namespace Api_CodeReview.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Branch>>> GetBranchs()
         {
-            return await _context.Branchs.ToListAsync();
+            return await _context
+                                .Branchs
+                                .AsNoTracking()
+                                .ToListAsync();
         }
 
         // GET: api/Branches/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Branch>> GetBranch(int id)
+        public async Task<ActionResult<Branch>> GetByIdBranch(int id)
         {
-            var branch = await _context.Branchs.FindAsync(id);
+            var branch = await _context
+                                        .Branchs
+                                        .AsNoTracking()
+                                        .FirstOrDefaultAsync(x => x.Id_branch == id);
 
             if (branch == null)
             {
