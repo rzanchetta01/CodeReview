@@ -94,22 +94,28 @@ namespace Api_CodeReview.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRepositorio(int id)
         {
-            //var branch = await _context.Branchs.FindAsync(id);
             var repositorio = await _context.Repositorios.FindAsync(id);
+            var branch = await _context.Branchs.FirstOrDefaultAsync(x => x.Id_repositorio == id);
+
             if (repositorio == null)
             {
                 return NotFound();
+            } 
+            else if (branch == null)
+            { 
+                _context.Repositorios.Remove(repositorio);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
             }
-
-            //if ( repositorio.Id_repositorio == branch.Id_repositorio)
-            //{
-            //    return StatusCode(203);
-            //}
-
-            _context.Repositorios.Remove(repositorio);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            else if (branch.Id_repositorio == repositorio.Id_repositorio)
+            {
+                return BadRequest("This repository has connection with others tables in the database");
+            } 
+            else
+            {
+                return NoContent();
+            }
         }
 
         private bool RepositorioExists(int id)
