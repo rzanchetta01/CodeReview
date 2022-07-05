@@ -70,7 +70,7 @@ namespace ExecutavelGitAnalyzer
             Console.WriteLine("Novo commit encontrado, disparando email");
             Console.WriteLine(conteudo);
             Console.WriteLine("\n");
-            //Email.EmailOperations.SendNewCommitEmail(conteudo, commit.Author.Name, branch.FriendlyName);
+            Email.EmailOperations.SendNewCommitEmail(conteudo, commit.Author.Name, branch.FriendlyName);
         }
 
         private static void DownloadRepo(string gitUrl)
