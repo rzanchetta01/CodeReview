@@ -8,8 +8,15 @@ namespace ExecutavelGitAnalyzer
     {
         static void Main(string[] args)
         {
-            Util.Tools.InitalConfig();
-            GitOperations.ReadAllRepos();
+            const int INTERVALO_ANALISE = 60000; //tempo em milisegundos
+
+
+            while (true)
+            {
+                GitOperations.ReadAllRepos();
+                System.Threading.Thread.Sleep(INTERVALO_ANALISE);
+            }
+
         }
 
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,15 +10,19 @@ namespace ExecutavelGitAnalyzer.Util
     {
         public static void InitalConfig()
         {
-            CreateRepoFolder();  
+            GetReposPath(true);   
         }
 
-        public static string GetReposPath()
+        public static string GetReposPath(bool isFirstTime)
         {
+            if (isFirstTime)
+                CreateRepoFolder();
+
 
             string path = AppDomain.CurrentDomain.BaseDirectory;
             path += @"\repos";
             return path;
+
         }
 
         private static void CreateRepoFolder()

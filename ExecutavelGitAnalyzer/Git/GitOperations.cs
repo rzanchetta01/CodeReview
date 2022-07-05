@@ -10,6 +10,11 @@ namespace ExecutavelGitAnalyzer
 {
     class GitOperations
     {
+        public static void DownloadRepo(string gitUrl)
+        {   
+            string cmdCommand = @$"/C cd repos && git clone {gitUrl}";
+            Util.Tools.CmdCommand(cmdCommand);
+        }
 
         public static void ReadAllRepos()
         {
@@ -19,64 +24,41 @@ namespace ExecutavelGitAnalyzer
                 foreach (var branch in repos.Branches)
                 {
                     var repName = folder;
-                    repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
-                    AnalyzeNewCommits(branch, repName);
+                    repName = repName.Remove(0, Util.Tools.GetReposPath(false).Length + 1);
+                    AnalyzeNewCommit(branch, repName);
                 }
             }
         }
 
         private static string[] ListRepos()
         {
+            string path = AppDomain.CurrentDomain.BaseDirectory;
+            path = @$"{path}\repos";
 
-            string[] reposLinks = Db.SelectOperations.GetRepositoriesLinks();
-            Console.WriteLine($"BUSCANDO REPOSITORIOS");
-
-            foreach (var item in reposLinks)
+            string[] repos = Directory.GetDirectories(path);
+            Console.WriteLine($"LENDO TODOS OS REPOS");
+            foreach (var item in repos)
             {
                 Console.Write(item + "\n");
-                DownloadRepo(item);
             }
-
-            string[] repos = Directory.GetDirectories(Util.Tools.GetReposPath());
-
             return repos;
         }
 
-        private static void AnalyzeNewCommits(Branch branch, string repoName)
+        private static void AnalyzeNewCommit(Branch branch, string repoName)
         {
-
-            Commit lastCommit = branch.Commits.ElementAtOrDefault(0);
-            DateTime lastCommitDate = lastCommit.Author.When.DateTime;
-            DateTime dbLastCommitDate = Db.SelectOperations.GetLastCommitDate(branch.FriendlyName, repoName);
-
-            if (lastCommitDate.CompareTo(dbLastCommitDate) > 0)
-            {
-                SendCommitEmail(branch, repoName, lastCommit);
-            }
-        }
-
-        private static void SendCommitEmail(Branch branch, string repoName, Commit commit)
-        {
+            Commit commit = branch.Commits.ElementAtOrDefault(0);
             string link = @"https://tfs.seniorsolution.com.br/Eseg/_git/" + repoName + @$"/commit/{commit.Id}?refName=refs%2Fheads%2F{branch.FriendlyName}";
 
-            var conteudo =
-            $"Um novo commit foi registrado\n" +
-            $"{commit.Author.Name} | {commit.Author.Email} " +
-            $"{commit.Author.When.DateTime} \n" +
-            $"{commit.MessageShort} |" +
-            $"{branch.FriendlyName} " +
-            $"{link}";
+                var conteudo =
+                $"Um novo commit foi registrado\n" +
+                $"{commit.Author.Name} | {commit.Author.Email} " +
+                $"{commit.Author.When.DateTime} " +
+                $"{commit.MessageShort} " +
+                $"{branch.FriendlyName} " +
+                $"{link}";
 
             Console.WriteLine("Novo commit encontrado, disparando email");
-            Console.WriteLine(conteudo);
-            Console.WriteLine("\n");
-            //Email.EmailOperations.SendNewCommitEmail(conteudo, commit.Author.Name, branch.FriendlyName);
-        }
-
-        private static void DownloadRepo(string gitUrl)
-        {
-            string cmdCommand = @$"/C cd repos && git clone {gitUrl}";
-            Util.Tools.CmdCommand(cmdCommand);
+            Email.EmailOperations.SendNewCommitEmail(conteudo, commit.Author.Name, branch.FriendlyName);
         }
 
     }
