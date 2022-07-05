@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Api_CodeReview.Context;
+using Api_CodeReview.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Api_CodeReview.Context;
-using Api_CodeReview.Models;
 
 namespace Api_CodeReview.Controllers
 {
@@ -87,7 +85,8 @@ namespace Api_CodeReview.Controllers
             _context.Branchs.Add(branch);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBranch", new { id = branch.Id_branch }, branch);
+            //No momento da criação de uma branch, buscar o último commit e gravar na base de dados junto com a data.
+            return CreatedAtAction(nameof(GetBranchs), new { id = branch.Id_branch }, branch);
         }
 
         // DELETE: api/Branches/5
@@ -95,15 +94,27 @@ namespace Api_CodeReview.Controllers
         public async Task<IActionResult> DeleteBranch(int id)
         {
             var branch = await _context.Branchs.FindAsync(id);
+            var commit = await _context.Commits.FirstOrDefaultAsync(x => x.Id_branch == id);
+
             if (branch == null)
             {
                 return NotFound();
             }
+            else if (commit == null) 
+            { 
+                _context.Branchs.Remove(branch);
+                await _context.SaveChangesAsync();
 
-            _context.Branchs.Remove(branch);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+                return NoContent();
+            }
+            else if (commit.Id_branch == branch.Id_branch)
+            {
+                return BadRequest("This branch has connection with others tables in the database");
+            }
+            else
+            {
+                return NoContent();
+            }
         }
 
         private bool BranchExists(int id)

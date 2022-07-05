@@ -8,13 +8,13 @@ namespace Api_CodeReview.Models
     public class Commit
     {
         [Key]
-        public int Id_commit { get; set; }
+        public string Id_commit { get; set; }
         public int Id_branch { get; set; }
         public string Nm_mensagem { get; set; }
         public string Nm_autor { get; set; }
         public DateTime Dt_commit { get; set; }
 
-        [ForeignKey("Id_branch")]
-        public Branch branch { get; set; }
+        //[ForeignKey("Id_branch")]
+        //public Branch branch { get; set; }
     }
 }
