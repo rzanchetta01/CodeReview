@@ -89,5 +89,47 @@ namespace ExecutavelGitAnalyzer.Db
             return result.ToArray();
         }
 
+        public static DateTime GetSlaCommitDate(string repoName)
+        {
+            DateTime result = DateTime.Now;
+
+            string connString = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+            using SqlConnection conn = new(connString);
+
+            SqlParameter pRepoName = new();
+            pRepoName.ParameterName = "@repoName";
+            pRepoName.Value = repoName;
+
+            string cmd = @"SELECT s.Nr_dias_sla_commit FROM tbSLA s
+	                            JOIN tbRepositorio r
+                            ON s.id_repositorio = r.Id_repositorio
+	                            WHERE r.Nm_repositorio = @repoName";
+
+            using SqlCommand command = new(cmd, conn);
+            command.Parameters.Add(pRepoName);
+
+            try
+            {
+                conn.Open();
+                using SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int dayLimit = reader.GetInt32(0);
+                    result = DateTime.Now.AddDays(-dayLimit);
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("ERRO AO PEGAR DATA SLA COMMIT DO REPOSITORIO: " + repoName + "\n" + e.Message);
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            return result;
+        }
     }
 }
