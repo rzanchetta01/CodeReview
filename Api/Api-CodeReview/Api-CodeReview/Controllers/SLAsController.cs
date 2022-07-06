@@ -33,30 +33,30 @@ namespace Api_CodeReview.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<SLA>> GetSLA(int id) 
         {
-            var sLA = await _context
+            var sla = await _context
                                     .SLAS
                                     .AsNoTracking()
                                     .FirstOrDefaultAsync(x => x.Id_SLA == id);
 
-            if (sLA == null)
+            if (sla == null)
             {
                 return NotFound();
             }
 
-            return sLA;
+            return sla;
         }
 
         // PUT: api/SLAs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSLA(int id, SLA sLA)
+        public async Task<IActionResult> PutSLA(int id, SLA sla)
         {
-            if (id != sLA.Id_SLA)
+            if (id != sla.Id_SLA)
             {
                 return BadRequest();
             }
 
-            _context.Entry(sLA).State = EntityState.Modified;
+            _context.Entry(sla).State = EntityState.Modified;
 
             try
             {
@@ -80,25 +80,26 @@ namespace Api_CodeReview.Controllers
         // POST: api/SLAs
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<SLA>> PostSLA(SLA sLA)
+        public async Task<ActionResult<SLA>> PostSLA(SLA sla)
         {
-            _context.SLAS.Add(sLA);
+            _context.SLAS.Add(sla);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetSLA", new { id = sLA.Id_SLA }, sLA);
+            return CreatedAtAction(nameof(GetSLAS), new { id = sla.Id_SLA }, sla);
         }
 
         // DELETE: api/SLAs/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSLA(int id)
         {
-            var sLA = await _context.SLAS.FindAsync(id);
-            if (sLA == null)
+            var sla = await _context.SLAS.FindAsync(id);
+
+            if (sla == null)
             {
                 return NotFound();
             }
 
-            _context.SLAS.Remove(sLA);
+            _context.SLAS.Remove(sla);
             await _context.SaveChangesAsync();
 
             return NoContent();
