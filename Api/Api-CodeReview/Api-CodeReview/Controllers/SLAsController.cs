@@ -23,14 +23,20 @@ namespace Api_CodeReview.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SLA>>> GetSLAS()
         {
-            return await _context.SLAS.ToListAsync();
+            return await _context
+                                .SLAS
+                                .AsNoTracking()
+                                .ToListAsync();
         }
 
         // GET: api/SLAs/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<SLA>> GetSLA(int id)
+        public async Task<ActionResult<SLA>> GetSLA(int id) 
         {
-            var sLA = await _context.SLAS.FindAsync(id);
+            var sLA = await _context
+                                    .SLAS
+                                    .AsNoTracking()
+                                    .FirstOrDefaultAsync(x => x.Id_SLA == id);
 
             if (sLA == null)
             {
