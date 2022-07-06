@@ -16,16 +16,9 @@ namespace ExecutavelGitAnalyzer.Util
 
         public static string GetReposPath()
         {
-
             string path = AppDomain.CurrentDomain.BaseDirectory;
             path += @"\repos";
             return path;
-        }
-
-        private static void CreateRepoFolder()
-        {
-            string cmdCommand = @"/C mkdir repos";
-            CmdCommand(cmdCommand);
         }
 
         public static void CmdCommand(string command)
@@ -39,5 +32,41 @@ namespace ExecutavelGitAnalyzer.Util
             process.Start();
             process.WaitForExit();
         }
+
+        public static void ShutDownConfigurations()
+        {
+            Console.WriteLine("Limpando repositórios");
+            CleanUpReposFolder(GetReposPath());
+            Console.WriteLine("Fim da limpeza");
+        }
+
+        private static void CreateRepoFolder()
+        {
+            Console.WriteLine("Criando temp para armazenar repositórios");
+            string cmdCommand = @"/C mkdir repos";
+            CmdCommand(cmdCommand);
+        }
+
+        private static void CleanUpReposFolder(string rootDir)
+        {
+            string[] files = Directory.GetFiles(rootDir);
+            string[] dirs = Directory.GetDirectories(rootDir);
+
+            foreach (string file in files)
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            }
+
+            foreach (string dir in dirs)
+            {
+                CleanUpReposFolder(dir);
+            }
+
+            Directory.Delete(rootDir, false);
+
+        }
+
+
     }
 }
