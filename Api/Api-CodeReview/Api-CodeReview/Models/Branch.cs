@@ -25,7 +25,7 @@ namespace Api_CodeReview.Models
         [StringLength(50, MinimumLength = 10)]
         public string Nm_email_review { get; set; }
 
-        [ForeignKey("Id_repositorio")]
-        public Repositorio repositorio { get; set; }
+        //[ForeignKey("Id_repositorio")]
+        //public Repositorio repositorio { get; set; }
     }
 }

@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Api_CodeReview.Context;
+using Api_CodeReview.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Api_CodeReview.Context;
-using Api_CodeReview.Models;
 
 namespace Api_CodeReview.Controllers
 {

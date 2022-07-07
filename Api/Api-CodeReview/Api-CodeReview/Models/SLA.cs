@@ -12,7 +12,7 @@ namespace Api_CodeReview.Models
         public int Nr_dias_sla_commit { get; set; }
         public int Nr_dias_sla_review { get; set; }
 
-        [ForeignKey("Id_repositorio")]
-        public Repositorio repositorio { get; set; }
+        //[ForeignKey("Id_repositorio")]
+        //public Repositorio repositorio { get; set; }
     }
 }
