@@ -10,6 +10,7 @@ namespace ExecutavelGitAnalyzer
         {
             Util.Tools.InitalConfig();
             GitOperations.ReadAllRepos();
+            // Util.Tools.ShutDownConfigurations();
         }
 
     }

@@ -28,19 +28,19 @@ namespace ExecutavelGitAnalyzer.Email
             SendEmail(bsc, bs);
         }
 
-        public static void SendSlaEmail()
+        public static void SendSlaEmail(string conteudo, string devResponsavel, string branch)
         {
 
             BaseEmail bs = new();
             bs.IsHtml = false;
-            bs.Conteudo = null;
+            bs.Conteudo = conteudo;
 
             BaseEmailConfig bsc = new();
             bsc.Usuario = ConfigurationManager.AppSettings["username"];
             bsc.Senha = ConfigurationManager.AppSettings["password"];
             bsc.Prioridade = MailPriority.Normal;
-            bsc.Titulo = null;
-            bsc.To = null;
+            bsc.Titulo = @$"AVISO DE VIOLAÇÃO DE SLA NA BRANCH {branch} // DEV RESPONSAVEL {devResponsavel}";
+            bsc.To = new string[] {"rzanchetta02@gmail.com"};
             bsc.Cc = null;
             bsc.From = ConfigurationManager.AppSettings["username"];
             bsc.FromNome = ConfigurationManager.AppSettings["name"];
@@ -108,7 +108,7 @@ namespace ExecutavelGitAnalyzer.Email
                 throw;
             }
             msg.Dispose();
-            Console.WriteLine("EMAIL ENVIADO");
+            Console.WriteLine("EMAIL ENVIADO\n");
             System.Threading.Thread.Sleep(50000);//Delay para evitar spam
         }
 
