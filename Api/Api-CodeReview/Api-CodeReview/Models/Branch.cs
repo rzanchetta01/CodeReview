@@ -10,7 +10,6 @@ namespace Api_CodeReview.Models
         public int Id_branch { get; set; }
 
         [Required]
-        [StringLength(1000, MinimumLength = 1)]
         public int Id_repositorio { get; set; }
 
         [Required]
