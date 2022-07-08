@@ -1,8 +1,6 @@
 ﻿using ExecutavelGitAnalyzer.Email;
-using LibGit2Sharp;
 using System;
 using System.Configuration;
-using System.Linq;
 
 namespace ExecutavelGitAnalyzer
 {
@@ -10,10 +8,14 @@ namespace ExecutavelGitAnalyzer
     {
         static void Main(string[] args)
         {
+            const int INTERVALO_ANALISE = 60000; //tempo em milisegundos
 
-            // Util.Tools.ShutDownConfigurations();
-            //Util.Tools.InitalConfig();
-            GitOperations.ReadAllRepos();
+
+            while (true)
+            {
+                GitOperations.ReadAllRepos();
+                System.Threading.Thread.Sleep(INTERVALO_ANALISE);
+            }
 
         }
 
