@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using ExecutavelGitAnalyzer.Git;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +9,11 @@ namespace ExecutavelGitAnalyzer
 {
     class GitOperations
     {
+        public static void DownloadRepo(string gitUrl)
+        {
+            string cmdCommand = @$"/C cd repos && git clone {gitUrl}";
+            Util.Tools.CmdCommand(cmdCommand);
+        }
 
         public static void ReadAllRepos()
         {
@@ -15,35 +21,52 @@ namespace ExecutavelGitAnalyzer
             Console.WriteLine($"ANALISANDO REPOSITORIOS");
             foreach (var folder in ListRepos())
             {
-                using var repos = new Repository(folder);
+                using var repos = new Repository(folder.Value);
+
                 foreach (var branch in repos.Branches)
                 {
-                    var repName = folder;
-                    repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
-                    AnalyzeNewCommits(branch, repName);
-                    SlaAnalyzer(branch, repName);
+                    if (!branch.FriendlyName.EndsWith("HEAD"))
+                    {
+                        var repName = folder.Value;
+                        repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
+                        AnalyzeNewCommits(branch, repName, folder.Key);
+                        SlaAnalyzer(branch, repName);
+                    }
                 }
             }
         }
 
-        private static string[] ListRepos()
+        private static Dictionary<string, string> ListRepos()
         {
-
-            string[] reposLinks = Db.SelectOperations.GetRepositoriesLinks();
+            Dictionary<string, string> reposLinks = new();
+            CloneConfig[] dbLinks = Db.SelectOperations.GetRepositoriesLinks();
             Console.WriteLine($"BUSCANDO REPOSITORIOS");
 
-            foreach (var item in reposLinks)
+            foreach (var item in dbLinks)
             {
-                Console.Write(item + "\n");
+                Console.Write(item.RepoName + "\n");
+
                 DownloadRepo(item);
             }
 
             string[] repos = Directory.GetDirectories(Util.Tools.GetReposPath());
 
-            return repos;
+            foreach (var folder in repos)
+            {
+                var repName = folder;
+                repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
+
+                foreach (var repLink in dbLinks)
+                {
+                    if (repLink.Url.Contains(repName))
+                        reposLinks.Add(repLink.Url, folder);
+                }
+            }
+
+            return reposLinks;
         }
 
-        private static void AnalyzeNewCommits(Branch branch, string repoName)
+        private static void AnalyzeNewCommits(Branch branch, string repoName, string repoLink)
         {
 
             Commit lastCommit = branch.Commits.ElementAtOrDefault(0);
@@ -52,7 +75,7 @@ namespace ExecutavelGitAnalyzer
 
             if (lastCommitDate.CompareTo(dbLastCommitDate) > 0)
             {
-                SendCommitEmail(branch, repoName, lastCommit);
+                SendCommitEmail(branch, repoName, lastCommit, repoLink);
             }
         }
 
@@ -68,28 +91,34 @@ namespace ExecutavelGitAnalyzer
             }
         }
 
-        private static void SendCommitEmail(Branch branch, string repoName, Commit commit)
+        private static void SendCommitEmail(Branch branch, string repoName, Commit commit, string link)
         {
-            string link = @"https://tfs.seniorsolution.com.br/Eseg/_git/" + repoName + @$"/commit/{commit.Id}?refName=refs%2Fheads%2F{branch.FriendlyName}";
+            if (link.EndsWith(".git"))
+                link = link.Remove(link.Length - 4, 4);
+
+            string url = @$"{link}" + @$"/commit/{commit.Id}?refName=refs%2Fheads%2F{branch.FriendlyName}";
 
             var conteudo =
             $"Um novo commit foi registrado\n" +
-            $"{commit.Author.Name} | {commit.Author.Email} " +
+            $"{commit.Author.Name.Trim()} | {commit.Author.Email.Trim()} " +
             $"{commit.Author.When.DateTime} \n" +
-            $"{commit.MessageShort} |" +
-            $"{branch.FriendlyName} " +
-            $"{link}";
+            $"{commit.MessageShort.Trim()} |" +
+            $"{branch.FriendlyName.Trim()} " +
+            $"{url.Trim()}";
 
-            Console.WriteLine("Novo commit encontrado, disparando email");
+            Console.WriteLine("\nNovo commit encontrado, disparando email");
             Console.WriteLine(conteudo);
             Console.WriteLine("\n");
-            //Email.EmailOperations.SendNewCommitEmail(conteudo, commit.Author.Name, branch.FriendlyName);
+
+            var email = Db.SelectOperations.GetBranchEmails(branch.FriendlyName, repoName);
+
+            Email.EmailOperations.SendNewCommitEmail(conteudo, commit.Author.Name, branch.FriendlyName, email.Item2);
         }
 
         private static void SendSlaEmail(Branch branch, string repoName)
         {
             var conteudo =
-                $"Atenção dev, dentro repositório {repoName}, a branch {branch.FriendlyName}\n não recebe um novo commit dentro do prazo limite";
+                $"Atenção dev, dentro repositório {repoName}, a branch {branch.FriendlyName}\nnão recebe um novo commit dentro do prazo limite";
 
             Console.WriteLine("Nenhum commit novo encontrado, disparando email");
             Console.WriteLine(conteudo);
@@ -97,9 +126,14 @@ namespace ExecutavelGitAnalyzer
             Email.EmailOperations.SendSlaEmail(conteudo, "teste", branch.FriendlyName);
         }
 
-        private static void DownloadRepo(string gitUrl)
+        private static void DownloadRepo(CloneConfig config)
         {
-            string cmdCommand = @$"/C cd repos && git clone {gitUrl}";
+            if (config.Url.StartsWith("https"))
+                config.Url = config.Url[8..];
+
+            string cloneUrl = $"https://{config.Username}:{config.Password}@{config.Url}";
+            string cmdCommand = @$"/C cd repos && git clone {cloneUrl}";
+
             Util.Tools.CmdCommand(cmdCommand);
         }
 

@@ -1,6 +1,8 @@
 ﻿using ExecutavelGitAnalyzer.Email;
+using LibGit2Sharp;
 using System;
 using System.Configuration;
+using System.Linq;
 
 namespace ExecutavelGitAnalyzer
 {
@@ -8,9 +10,11 @@ namespace ExecutavelGitAnalyzer
     {
         static void Main(string[] args)
         {
-            Util.Tools.InitalConfig();
-            GitOperations.ReadAllRepos();
+
             // Util.Tools.ShutDownConfigurations();
+            //Util.Tools.InitalConfig();
+            GitOperations.ReadAllRepos();
+
         }
 
     }
