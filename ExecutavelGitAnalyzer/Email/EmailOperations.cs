@@ -9,7 +9,7 @@ namespace ExecutavelGitAnalyzer.Email
     {
         private static readonly string hostEmail = "smtp-mail.outlook.com";
 
-        public static void SendNewCommitEmail(string conteudo, string autor, string branch)
+        public static void SendNewCommitEmail(string conteudo, string autor, string branch, string reviewEmail)
         {
             BaseEmail bs = new();
             bs.IsHtml = false;
@@ -20,7 +20,7 @@ namespace ExecutavelGitAnalyzer.Email
             bsc.Senha = ConfigurationManager.AppSettings["password"];
             bsc.Prioridade = MailPriority.Normal;
             bsc.Titulo = @$"NOVO REVIEW DE COMMIT NA BRANCH {branch} // AUTOR {autor}";
-            bsc.To = new string[] {"rzanchetta02@gmail.com"};
+            bsc.To = new string[] { reviewEmail };
             bsc.Cc = null;
             bsc.From = ConfigurationManager.AppSettings["username"];
             bsc.FromNome = ConfigurationManager.AppSettings["name"];
@@ -105,11 +105,10 @@ namespace ExecutavelGitAnalyzer.Email
             catch (Exception e)
             {
                 Console.WriteLine("ERRO AO ENVIAR EMAIL: {0}", e.Message);
-                throw;
             }
             msg.Dispose();
-            Console.WriteLine("EMAIL ENVIADO");
-            System.Threading.Thread.Sleep(50000);//Delay para evitar spam
+            Console.WriteLine("EMAIL ENVIADO\n");
+            System.Threading.Thread.Sleep(5000);//Delay para evitar spam
         }
 
     }
