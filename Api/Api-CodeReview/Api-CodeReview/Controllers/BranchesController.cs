@@ -1,5 +1,6 @@
 ﻿using Api_CodeReview.Context;
 using Api_CodeReview.Models;
+using LibGit2Sharp;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace Api_CodeReview.Controllers
 
         // GET: api/Branches
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Branch>>> GetBranchs()
+        public async Task<ActionResult<IEnumerable<Models.Branch>>> GetBranchs()
         {
             return await _context
                                 .Branchs
@@ -31,7 +32,7 @@ namespace Api_CodeReview.Controllers
 
         // GET: api/Branches/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Branch>> GetByIdBranch(int id)
+        public async Task<ActionResult<Models.Branch>> GetByIdBranch(int id)
         {
             var branch = await _context
                                         .Branchs
@@ -49,7 +50,7 @@ namespace Api_CodeReview.Controllers
         // PUT: api/Branches/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBranch(int id, Branch branch)
+        public async Task<IActionResult> PutBranch(int id, Models.Branch branch)
         {
             if (id != branch.Id_branch)
             {
@@ -80,14 +81,35 @@ namespace Api_CodeReview.Controllers
         // POST: api/Branches
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Branch>> PostBranch(Branch branch)
+        public async Task<ActionResult<Models.Branch>> PostBranch(Models.Branch branch)
         {
-            _context.Branchs.Add(branch);
-            await _context.SaveChangesAsync();
 
-            //No momento da criação de uma branch, buscar o último commit e gravar na base de dados junto com a data.
-            return CreatedAtAction(nameof(GetBranchs), new { id = branch.Id_branch }, branch);
+            var repositorio = _context.Repositorios.FirstOrDefault(x => x.Id_repositorio == branch.Id_repositorio);
+
+            string[] branchs = Service.BranchService.ListarPossiveisBranchs(repositorio);
+
+            foreach (var refBranch in branchs)
+            {
+                if (refBranch.Contains(branch.Nm_branch))
+                {
+                    _context.Branchs.Add(branch);
+                    await _context.SaveChangesAsync();
+
+                    //No momento da criação de uma branch, buscar o último commit e gravar na base de dados junto com a data.
+                    return CreatedAtAction(nameof(GetBranchs), new { id = branch.Id_branch }, branch);
+
+                }
+            }
+
+
+            return BadRequest();
         }
+
+
+
+
+
+
 
         // DELETE: api/Branches/5
         [HttpDelete("{id}")]
