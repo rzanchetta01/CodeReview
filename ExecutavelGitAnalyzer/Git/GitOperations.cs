@@ -23,12 +23,14 @@ namespace ExecutavelGitAnalyzer
             {
                 using var repos = new Repository(folder.Value);
 
+                var repName = folder.Value;
+                repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
+                string[] repoSelectedBranchs = Db.SelectOperations.GetRepositoryBranchs(repName);
+
                 foreach (var branch in repos.Branches)
                 {
-                    if (!branch.FriendlyName.EndsWith("HEAD"))
+                    if (!branch.FriendlyName.EndsWith("HEAD") && repoSelectedBranchs.Contains(branch.FriendlyName))
                     {
-                        var repName = folder.Value;
-                        repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
                         AnalyzeNewCommits(branch, repName, folder.Key);
                         SlaAnalyzer(branch, repName);
                     }

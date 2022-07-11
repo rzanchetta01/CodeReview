@@ -186,5 +186,47 @@ namespace ExecutavelGitAnalyzer.Db
 
             return result;
         }
+    
+        public static string[] GetRepositoryBranchs(string repoName)
+        {
+            List<String> branchs = new();
+
+            string connString = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+            using SqlConnection conn = new(connString);
+
+            SqlParameter pRepoName = new();
+            pRepoName.ParameterName = "@repoName";
+            pRepoName.Value = repoName;
+
+            string cmd = @"SELECT b.Nm_branch FROM tbBranch b
+	                            JOIN tbRepositorio r
+                            ON b.Id_repositorio = r.Id_repositorio
+	                            WHERE r.Nm_repositorio = @repoName";
+
+            using SqlCommand command = new(cmd, conn);
+            command.Parameters.Add(pRepoName);
+
+            try
+            {
+                conn.Open();
+                using SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    branchs.Add(reader.GetString(0));
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("ERRO AO PEGAR BRANCHS PARA ANALISE DO REPOSITORIO: " + repoName + "\n" + e.Message);
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            return branchs.ToArray();
+        }
     }
 }
