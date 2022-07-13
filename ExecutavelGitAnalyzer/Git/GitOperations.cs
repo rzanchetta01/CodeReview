@@ -61,7 +61,11 @@ namespace ExecutavelGitAnalyzer
                 foreach (var repLink in dbLinks)
                 {
                     if (repLink.Url.Contains(repName))
-                        reposLinks.Add(repLink.Url, folder);
+                    {
+                        try { reposLinks.Add(repLink.Url, folder); }
+                        catch (Exception) { continue;  }
+
+                    }
                 }
             }
 
