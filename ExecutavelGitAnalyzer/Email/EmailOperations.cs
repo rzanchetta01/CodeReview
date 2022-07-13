@@ -16,19 +16,19 @@ namespace ExecutavelGitAnalyzer.Email
             bs.Conteudo = conteudo;
 
             BaseEmailConfig bsc = new();
-            bsc.Usuario = ConfigurationManager.AppSettings["username"];
-            bsc.Senha = ConfigurationManager.AppSettings["password"];
+            bsc.Usuario = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.Senha = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["password"]);
             bsc.Prioridade = MailPriority.Normal;
             bsc.Titulo = @$"NOVO REVIEW DE COMMIT NA BRANCH {branch} // AUTOR {autor}";
             bsc.To = new string[] { reviewEmail };
             bsc.Cc = null;
-            bsc.From = ConfigurationManager.AppSettings["username"];
-            bsc.FromNome = ConfigurationManager.AppSettings["name"];
+            bsc.From = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.FromNome = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["name"]);
 
             SendEmail(bsc, bs);
         }
 
-        public static void SendSlaEmail(string conteudo, string devResponsavel, string branch)
+        public static void SendSlaEmail(string conteudo, (string,string) devResponsavelAndSupervisor, string branch)
         {
 
             BaseEmail bs = new();
@@ -36,14 +36,14 @@ namespace ExecutavelGitAnalyzer.Email
             bs.Conteudo = conteudo;
 
             BaseEmailConfig bsc = new();
-            bsc.Usuario = ConfigurationManager.AppSettings["username"];
-            bsc.Senha = ConfigurationManager.AppSettings["password"];
+            bsc.Usuario = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.Senha = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["password"]);
             bsc.Prioridade = MailPriority.Normal;
-            bsc.Titulo = @$"AVISO DE VIOLAÇÃO DE SLA NA BRANCH {branch} // DEV RESPONSAVEL {devResponsavel}";
-            bsc.To = new string[] { "rzanchetta02@gmail.com" };
+            bsc.Titulo = @$"AVISO DE VIOLAÇÃO DE SLA NA BRANCH {branch} // DEV RESPONSAVEL {devResponsavelAndSupervisor.Item1}";
+            bsc.To = new string[] { devResponsavelAndSupervisor.Item1, devResponsavelAndSupervisor.Item2 };
             bsc.Cc = null;
-            bsc.From = ConfigurationManager.AppSettings["username"];
-            bsc.FromNome = ConfigurationManager.AppSettings["name"];
+            bsc.From = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.FromNome = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["name"]);
 
             SendEmail(bsc, bs);
         }
