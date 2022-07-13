@@ -13,7 +13,7 @@ namespace Api_CodeReview.Models
         public int Id_repositorio { get; set; }
 
         [Required]
-        [StringLength(200, MinimumLength = 6)]
+        [StringLength(200, MinimumLength = 4)]
         public string Nm_branch { get; set; }
 
         [Required]
