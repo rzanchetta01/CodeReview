@@ -20,7 +20,7 @@ namespace Api_CodeReview.Context
                 .AddJsonFile("appsettings.json", false, false)
                 .Build();
 
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DEV_CodeReview"));
+            optionsBuilder.UseSqlServer(Service.CriptografiaService.Decrypt(configuration.GetConnectionString("DEV_CodeReview")));
         }
     }
 }
