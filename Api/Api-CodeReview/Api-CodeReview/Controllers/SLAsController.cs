@@ -1,5 +1,6 @@
 ﻿using Api_CodeReview.Context;
 using Api_CodeReview.Models;
+using Api_CodeReview.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -12,38 +13,34 @@ namespace Api_CodeReview.Controllers
     [ApiController]
     public class SLAsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly SlaService service;
 
         public SLAsController(AppDbContext context)
         {
-            _context = context;
+            service = new SlaService(context);
         }
 
         // GET: api/SLAs
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SLA>>> GetSLAS()
         {
-            return await _context
-                                .SLAS
-                                .AsNoTracking()
-                                .ToListAsync();
+            var slas = await service.GetAll();
+
+            return Ok(slas);
         }
 
         // GET: api/SLAs/5
         [HttpGet("{id}")]
         public async Task<ActionResult<SLA>> GetSLA(int id) 
         {
-            var sla = await _context
-                                    .SLAS
-                                    .AsNoTracking()
-                                    .FirstOrDefaultAsync(x => x.Id_SLA == id);
+            var sla = await service.GetById(id);
 
             if (sla == null)
             {
                 return NotFound();
             }
 
-            return sla;
+            return Ok(sla);
         }
 
         // PUT: api/SLAs/5
@@ -56,25 +53,8 @@ namespace Api_CodeReview.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(sla).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SLAExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            await service.Update(sla);
+            return Ok();
         }
 
         // POST: api/SLAs
@@ -82,9 +62,7 @@ namespace Api_CodeReview.Controllers
         [HttpPost]
         public async Task<ActionResult<SLA>> PostSLA(SLA sla)
         {
-            _context.SLAS.Add(sla);
-            await _context.SaveChangesAsync();
-
+            await service.Post(sla);
             return CreatedAtAction(nameof(GetSLAS), new { id = sla.Id_SLA }, sla);
         }
 
@@ -92,22 +70,9 @@ namespace Api_CodeReview.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSLA(int id)
         {
-            var sla = await _context.SLAS.FindAsync(id);
+            await service.Delete(id);
 
-            if (sla == null)
-            {
-                return NotFound();
-            }
-
-            _context.SLAS.Remove(sla);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool SLAExists(int id)
-        {
-            return _context.SLAS.Any(e => e.Id_SLA == id);
+            return Ok();
         }
     }
 }
