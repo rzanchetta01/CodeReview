@@ -10,7 +10,7 @@ namespace Api_CodeReview.Repository
         Task<Branch> GetById(int id);
         Task<Branch> GetByNome(string nome);
         Task Post(Branch branch);
-        void Update(Branch branch);
+        Task Update(Branch branch);
         Task Delete(int id);
         Task Save();
         bool BranchExist(int id);

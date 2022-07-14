@@ -73,8 +73,8 @@ namespace Api_CodeReview.Repository
                 {
                     if (refBranch.Contains(branch.Nm_branch))
                     {
-                        _context.Branchs.Add(branch);
-                        await _context.SaveChangesAsync();
+                        await _context.Branchs.AddAsync(branch);
+                        await Save();
 
                         //No momento da criação de uma branch, buscar o último commit e gravar na base de dados junto com a data.
                         return;

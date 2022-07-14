@@ -45,7 +45,7 @@ namespace Api_CodeReview.Service
 
             try
             {
-                repository.Update(branch);
+                await repository.Update(branch);
                 await repository.Save();
             }
             catch (DbUpdateConcurrencyException)
