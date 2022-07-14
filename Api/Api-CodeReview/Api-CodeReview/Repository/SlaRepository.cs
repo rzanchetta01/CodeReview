@@ -72,5 +72,10 @@ namespace Api_CodeReview.Repository
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        public bool SlaExist(int id)
+        {
+            return _context.SLAS.Any(e => e.Id_SLA == id);
+        }
     }
 }

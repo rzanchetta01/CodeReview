@@ -42,6 +42,5 @@ namespace Api_CodeReview.Service
         {
             await repository.Delete(id);
         }
-
     }
 }
