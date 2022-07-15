@@ -120,5 +120,21 @@ namespace Api_CodeReview.Repository
 
             return branchs.ToArray();
         }
+
+        public bool BranchExistByNome(string nome)
+        {
+            try
+            {
+                var branch = _context.Branchs.FirstOrDefault(n => n.Nm_branch.Equals(nome));
+                if (branch == null)
+                    return false;
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

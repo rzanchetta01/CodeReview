@@ -13,6 +13,8 @@ namespace Api_CodeReview.Repository
         Task Update(Branch branch);
         Task Delete(int id);
         bool BranchExist(int id);
+
+        bool BranchExistByNome(string nome);
         string[] ListarPossiveisBranchs(Repositorio repositorio);
     }
 }

@@ -18,7 +18,6 @@ namespace Api_CodeReview.Repository
             _context = context;
         }
 
-
         public async Task<IEnumerable<Repositorio>> GetAll()
         {
             return await _context
@@ -84,5 +83,36 @@ namespace Api_CodeReview.Repository
             GC.SuppressFinalize(this);
         }
 
+        public bool RepositoryExistByGitUrl(string url)
+        {
+            try
+            {
+                var repo = _context.Repositorios.FirstOrDefault(n => n.Nm_url_clone.Equals(url));
+                if (repo == null)
+                    return false;
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public bool RepositoryExistByName(string name)
+        {
+            try
+            {
+                var repo = _context.Repositorios.FirstOrDefault(n => n.Nm_repositorio.Equals(name));
+                if (repo == null)
+                    return false;
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

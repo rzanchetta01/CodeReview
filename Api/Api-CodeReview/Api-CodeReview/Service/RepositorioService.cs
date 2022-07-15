@@ -38,6 +38,12 @@ namespace Api_CodeReview.Service
             if(!repositorio.Nm_url_clone.Contains(repositorio.Nm_repositorio))
                 throw new Exception("Link é de outro repositorio ou nome está errado");
 
+            if (repository.RepositoryExistByName(repositorio.Nm_repositorio))
+                throw new Exception("Esse repositorio ja existe");
+
+            if (repository.RepositoryExistByGitUrl(repositorio.Nm_url_clone))
+                throw new Exception("Esse repositorio ja existe");
+
             repositorio.Nm_email_admin = CriptografiaService.Encrypt(repositorio.Nm_email_admin);
             repositorio.Nm_senha = CriptografiaService.Encrypt(repositorio.Nm_senha); 
             repositorio.Nm_usuario = CriptografiaService.Encrypt(repositorio.Nm_usuario); 

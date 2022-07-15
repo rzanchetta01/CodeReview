@@ -50,6 +50,9 @@ namespace Api_CodeReview.Service
             if (repositorio == null)
                 throw new Exception("Repositorio não existe");
 
+            if (repository.BranchExistByNome(branch.Nm_branch))
+                throw new Exception("Ja existe uma branch com esse nome");
+
             foreach (var item in repository.ListarPossiveisBranchs(repositorio))
             {
                 if(item.EndsWith(branch.Nm_branch))
@@ -74,6 +77,9 @@ namespace Api_CodeReview.Service
             var repositorio = await repositorioRepository.GetById(branch.Id_repositorio);
             if (repositorio == null)
                 throw new Exception("Repositorio não existe");
+
+            if (repository.BranchExistByNome(branch.Nm_branch))
+                throw new Exception("Ja existe uma branch com esse nome");
 
             foreach (var item in repository.ListarPossiveisBranchs(repositorio))
             {

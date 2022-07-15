@@ -15,5 +15,7 @@ namespace Api_CodeReview.Repository
         Task Update(Repositorio repositorio);
         Task Delete(int id);
         bool RepositoryExist(int id);
+        bool RepositoryExistByGitUrl(string url);
+        bool RepositoryExistByName(string name);
     }
 }
