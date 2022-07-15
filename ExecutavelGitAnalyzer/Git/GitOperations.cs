@@ -26,7 +26,7 @@ namespace ExecutavelGitAnalyzer
                 var repName = folder.Value;
                 repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
                 string[] repoSelectedBranchs = Db.SelectOperations.GetRepositoryBranchs(repName);
-
+                
                 foreach (var branch in repos.Branches)
                 {
                     if (!branch.FriendlyName.EndsWith("HEAD") && repoSelectedBranchs.Contains(branch.FriendlyName))
@@ -125,7 +125,11 @@ namespace ExecutavelGitAnalyzer
             Console.WriteLine("Nenhum commit novo encontrado, disparando email");
             Console.WriteLine(conteudo);
             Console.WriteLine("\n");
-            Email.EmailOperations.SendSlaEmail(conteudo, "teste", branch.FriendlyName);
+
+
+            var email = Db.SelectOperations.GetBranchEmails(branch.FriendlyName, repoName);
+
+            Email.EmailOperations.SendSlaEmail(conteudo, email, branch.FriendlyName);
         }
 
         private static void DownloadRepo(CloneConfig config)

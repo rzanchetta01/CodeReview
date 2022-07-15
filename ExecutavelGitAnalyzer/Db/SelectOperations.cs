@@ -12,7 +12,7 @@ namespace ExecutavelGitAnalyzer.Db
         {
             DateTime result = DateTime.Now;
 
-            string connString = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+            string connString = Util.Criptografia.Decrypt(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
             using SqlConnection conn = new(connString);
             SqlParameter pBranchName = new();
             pBranchName.ParameterName = "@branchName";
@@ -22,10 +22,10 @@ namespace ExecutavelGitAnalyzer.Db
             pRepoName.ParameterName = "@repoName";
             pRepoName.Value = repoName;
 
-            string cmd = @"SELECT c.Dt_commit FROM tbCommit c
-	                        JOIN tbBranch b
+            string cmd = @"SELECT c.Dt_commit FROM tbCommit c (nolock)
+	                        JOIN tbBranch b (nolock)
                         ON b.Id_branch = c.Id_branch
-                            join tbRepositorio r
+                            join tbRepositorio r (nolock)
                         ON r.Id_repositorio = b.Id_repositorio
 	                        WHERE b.Nm_branch = @branchName and r.Nm_repositorio = @repoName";
 
@@ -60,10 +60,10 @@ namespace ExecutavelGitAnalyzer.Db
         {
             List<CloneConfig> result = new();
 
-            string connString = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+            string connString = Util.Criptografia.Decrypt(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
             using SqlConnection conn = new(connString);
 
-            string cmd = @"SELECT Nm_repositorio, Nm_url_clone, Nm_usuario, Nm_senha FROM tbRepositorio";
+            string cmd = @"SELECT Nm_repositorio, Nm_url_clone, Nm_usuario, Nm_senha FROM tbRepositorio (nolock)";
             using SqlCommand command = new(cmd, conn);
 
             try
@@ -99,15 +99,15 @@ namespace ExecutavelGitAnalyzer.Db
         {
             DateTime result = DateTime.Now;
 
-            string connString = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+            string connString = Util.Criptografia.Decrypt(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
             using SqlConnection conn = new(connString);
 
             SqlParameter pRepoName = new();
             pRepoName.ParameterName = "@repoName";
             pRepoName.Value = repoName;
 
-            string cmd = @"SELECT s.Nr_dias_sla_commit FROM tbSLA s
-	                            JOIN tbRepositorio r
+            string cmd = @"SELECT s.Nr_dias_sla_commit FROM tbSLA s (nolock)
+	                            JOIN tbRepositorio r (nolock)
                             ON s.id_repositorio = r.Id_repositorio
 	                            WHERE r.Nm_repositorio = @repoName";
 
@@ -142,7 +142,7 @@ namespace ExecutavelGitAnalyzer.Db
         {
             (string, string) result = (null, null);
 
-            string connString = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+            string connString = Util.Criptografia.Decrypt(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
             using SqlConnection conn = new(connString);
 
             SqlParameter pBranchName = new();
@@ -153,8 +153,8 @@ namespace ExecutavelGitAnalyzer.Db
             pRepoName.ParameterName = "@repoName";
             pRepoName.Value = repoName;
 
-            string cmd = @"SELECT b.Nm_email_dev, b.Nm_email_review FROM tbBranch b
-	                            JOIN tbRepositorio r
+            string cmd = @"SELECT b.Nm_email_dev, b.Nm_email_review FROM tbBranch b (nolock)
+	                            JOIN tbRepositorio r (nolock)
                             ON b.Id_repositorio = r.Id_repositorio
                             WHERE b.Nm_branch = @branchName and r.Nm_repositorio = @repoName";
 
@@ -191,15 +191,15 @@ namespace ExecutavelGitAnalyzer.Db
         {
             List<String> branchs = new();
 
-            string connString = ConfigurationManager.ConnectionStrings["DB"].ConnectionString;
+            string connString = Util.Criptografia.Decrypt(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
             using SqlConnection conn = new(connString);
 
             SqlParameter pRepoName = new();
             pRepoName.ParameterName = "@repoName";
             pRepoName.Value = repoName;
 
-            string cmd = @"SELECT b.Nm_branch FROM tbBranch b
-	                            JOIN tbRepositorio r
+            string cmd = @"SELECT b.Nm_branch FROM tbBranch b (nolock)
+	                            JOIN tbRepositorio r (nolock)
                             ON b.Id_repositorio = r.Id_repositorio
 	                            WHERE r.Nm_repositorio = @repoName";
 

@@ -15,20 +15,20 @@ namespace Api_CodeReview.Service
             string urlClone = repo.Nm_url_clone[8..];
             List<string> branchs = new();
 
-            Process process = new();
+            using Process process = new();
             process.StartInfo.FileName = "powershell.exe";
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.Arguments = $"git ls-remote 'https://{repo.Nm_usuario}:{repo.Nm_senha}@{urlClone}' 'refs/heads/*'";
             process.Start();
-            StreamReader stdOut = process.StandardOutput;
+            using StreamReader stdOut = process.StandardOutput;
             process.WaitForExit();
             while (!stdOut.EndOfStream)
                 branchs.Add(stdOut.ReadLine());
 
-
             return branchs.ToArray();
+
         }
     }
 }
