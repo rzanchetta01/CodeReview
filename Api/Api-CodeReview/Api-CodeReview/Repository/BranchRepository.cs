@@ -88,9 +88,10 @@ namespace Api_CodeReview.Repository
             await _context.SaveChangesAsync();
         }
 
-        public void Update(Branch branch)
+        public async Task Update(Branch branch)
         { 
             _context.Entry(branch).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            await Save();
         }
 
         protected virtual void Dispose(bool disposing)

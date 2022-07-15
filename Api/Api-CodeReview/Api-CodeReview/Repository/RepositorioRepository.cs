@@ -1,5 +1,6 @@
 ﻿using Api_CodeReview.Context;
 using Api_CodeReview.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,40 +19,46 @@ namespace Api_CodeReview.Repository
         }
 
 
-        public IEnumerable<Repositorio> GetAll()
+        public async Task<IEnumerable<Repositorio>> GetAll()
         {
-            return _context.Repositorios.ToList();
+            return await _context
+                                .Repositorios
+                                .AsNoTracking()
+                                .ToListAsync();
         }
 
-        public Repositorio GetById(int id)
+        public async Task<Repositorio> GetById(int id)
         {
-            return _context.Repositorios.FirstOrDefault(n => n.Id_repositorio == id);
+            return await _context.Repositorios.FirstOrDefaultAsync(n => n.Id_repositorio == id);
         }
 
-        public Repositorio GetByNome(string nome)
+        public async Task<Repositorio> GetByNome(string nome)
         {
-            return _context.Repositorios.FirstOrDefault(n => n.Nm_repositorio.Equals(nome));
+            return await _context.Repositorios.FirstOrDefaultAsync(n => n.Nm_repositorio.Equals(nome));
         }
 
-        public void Post(Repositorio repositorio)
+        public async Task Post(Repositorio repositorio)
         {
-            _context.Repositorios.Add(repositorio);
+            await _context.Repositorios.AddAsync(repositorio);
+            await Save();
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var rep = _context.Repositorios.Find(id);
+            var rep = await _context.Repositorios.FindAsync(id);
             _context.Repositorios.Remove(rep);
+            await Save();
         }
 
-        public void Update(Repositorio repositorio)
+        public async Task Update(Repositorio repositorio)
         {
             _context.Entry(repositorio).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            await Save();
         }
 
-        public void Save()
+        private async Task Save()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         protected virtual void Dispose(bool disposing)

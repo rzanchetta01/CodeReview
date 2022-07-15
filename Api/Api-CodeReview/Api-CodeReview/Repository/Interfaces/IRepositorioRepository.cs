@@ -8,12 +8,11 @@ namespace Api_CodeReview.Repository
 {
     interface IRepositorioRepository
     {
-        IEnumerable<Repositorio> GetAll();
-        Repositorio GetById(int id);
-        Repositorio GetByNome(string nome);
-        void Post(Repositorio repositorio);
-        void Update(Repositorio repositorio);
-        void Delete(int id);
-        void Save();
+        Task<IEnumerable<Repositorio>> GetAll();
+        Task<Repositorio> GetById(int id);
+        Task<Repositorio> GetByNome(string nome);
+        Task Post(Repositorio repositorio);
+        Task Update(Repositorio repositorio);
+        Task Delete(int id);
     }
 }

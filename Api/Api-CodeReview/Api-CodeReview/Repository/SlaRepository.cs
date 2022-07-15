@@ -19,9 +19,11 @@ namespace Api_CodeReview.Repository
             _context = context;
         }
 
-        public Task Delete(int id)
+        public async Task Delete(int id)
         {
-            throw new NotImplementedException();
+            var obj = await _context.SLAS.FirstOrDefaultAsync(n => n.Id_SLA == id);
+            _context.Remove(obj);
+            await Save();
         }
 
         public async Task<IEnumerable<SLA>> GetAll()
