@@ -17,10 +17,12 @@ namespace Api_CodeReview.Models
         public string Nm_branch { get; set; }
 
         [Required]
+        [EmailAddress]
         [StringLength(50, MinimumLength = 10)]
         public string Nm_email_dev { get; set; }
 
         [Required]
+        [EmailAddress]
         [StringLength(50, MinimumLength = 10)]
         public string Nm_email_review { get; set; }
 

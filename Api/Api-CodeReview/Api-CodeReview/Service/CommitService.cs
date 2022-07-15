@@ -19,18 +19,30 @@ namespace Api_CodeReview.Service
 
         public void Delete(int id) 
         {
+            if (!repository.CommitExist(id))
+                throw new Exception("Id não existe");
+
             repository.Delete(id);
         }
         public Commit GetById(int id)
         {
+            if (!repository.CommitExist(id))
+                throw new Exception("Id não existe");
+
             return repository.GetById(id);
         }
         public void Post(Commit commit)
         {
+            if (!repository.CommitExistByIdBranch(commit.Id_branch))
+                throw new Exception("Ja existe um commit para essa branch");
+
             repository.Post(commit);
         }
         public void Update(Commit commit, int id)
         {
+            if (!repository.CommitExist(id))
+                throw new Exception("Id não existe");
+
             repository.Update(commit);
         }
     }

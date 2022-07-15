@@ -63,27 +63,11 @@ namespace Api_CodeReview.Repository
 
         public async Task Post(Branch branch)
         {
-            try
-            {
-                var repositorio = _context.Repositorios.FirstOrDefault(x => x.Id_repositorio == branch.Id_repositorio);
-
-                string[] branchs = ListarPossiveisBranchs(repositorio);
-
-                foreach (var refBranch in branchs)
-                {
-                    if (refBranch.Contains(branch.Nm_branch))
-                    {
-                        await _context.Branchs.AddAsync(branch);
-                        await Save();
-
-                        //No momento da criação de uma branch, buscar o último commit e gravar na base de dados junto com a data.
-                        return;
-                    }
-                }
-            } catch (Exception) { throw; }
+            await _context.Branchs.AddAsync(branch);
+            await Save();
         }
 
-        public async Task Save()
+        private async Task Save()
         {
             await _context.SaveChangesAsync();
         }
@@ -117,7 +101,7 @@ namespace Api_CodeReview.Repository
             return _context.Branchs.Any(e => e.Id_branch == id);
         }
 
-        private string[] ListarPossiveisBranchs(Models.Repositorio repo)
+        public string[] ListarPossiveisBranchs(Repositorio repo)
         {
             string urlClone = repo.Nm_url_clone[8..];
             List<string> branchs = new();

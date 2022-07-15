@@ -12,7 +12,7 @@ namespace Api_CodeReview.Repository
         Task Post(Branch branch);
         Task Update(Branch branch);
         Task Delete(int id);
-        Task Save();
         bool BranchExist(int id);
+        string[] ListarPossiveisBranchs(Repositorio repositorio);
     }
 }

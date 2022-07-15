@@ -32,15 +32,38 @@ namespace Api_CodeReview.Service
         }
         public async Task Post(Repositorio repositorio)
         {
+            if (repository.RepositoryExist(repositorio.Id_repositorio))
+                throw new Exception("Repositorio id ja existe");
+
+            if(!repositorio.Nm_url_clone.Contains(repositorio.Nm_repositorio))
+                throw new Exception("Link é de outro repositorio ou nome está errado");
+
+            repositorio.Nm_email_admin = CriptografiaService.Encrypt(repositorio.Nm_email_admin);
+            repositorio.Nm_senha = CriptografiaService.Encrypt(repositorio.Nm_senha); 
+            repositorio.Nm_usuario = CriptografiaService.Encrypt(repositorio.Nm_usuario); 
+            
             await repository.Post(repositorio);
         }
-        public async Task Update(Repositorio repositorio)
+        public async Task Update(Repositorio repositorio, int id)
         {
+            if (id != repositorio.Id_repositorio)
+                throw new Exception("Id's diferentes");
+
+            if (!repository.RepositoryExist(id))
+                throw new Exception("Id não existe");
+
+            repositorio.Nm_email_admin = CriptografiaService.Encrypt(repositorio.Nm_email_admin);
+            repositorio.Nm_senha = CriptografiaService.Encrypt(repositorio.Nm_senha);
+            repositorio.Nm_usuario = CriptografiaService.Encrypt(repositorio.Nm_usuario);
+
             await repository.Update(repositorio);
         }
         
         public async Task Delete(int id)
         {
+            if (!repository.RepositoryExist(id))
+                throw new Exception("Id não existe");
+
             await repository.Delete(id);
         }
     }

@@ -25,25 +25,30 @@ namespace Api_CodeReview.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Repositorio>>> GetRepositorios()
         {
-            var repos = await service.GetAll();
-
-            if (repos == null)
-                return NoContent();
-
-            return Ok(repos);
+            try
+            {
+                var repos = await service.GetAll();
+                return Ok(repos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // GET: api/Repositorios/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Repositorio>> GetByIdRepositorio(int id)
         {
-            var repositorio = await service.GetById(id);
-
-            if (repositorio == null)
-                return NotFound();
-
-
-            return Ok(repositorio);
+            try
+            {
+                var repositorio = await service.GetById(id);
+                return Ok(repositorio);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // PUT: api/Repositorios/5
@@ -51,14 +56,9 @@ namespace Api_CodeReview.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRepositorio(int id, Repositorio repositorio)
         {
-            if (id != repositorio.Id_repositorio)
-            {
-                return BadRequest();
-            }
-
             try
             {
-                await service.Update(repositorio);
+                await service.Update(repositorio, id);
                 return Ok();
             }
             catch (Exception e)
@@ -97,7 +97,6 @@ namespace Api_CodeReview.Controllers
             {
                 return BadRequest(e.Message);
             }
-
         }
     }
 }

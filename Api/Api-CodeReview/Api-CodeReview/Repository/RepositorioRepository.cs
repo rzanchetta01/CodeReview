@@ -61,6 +61,11 @@ namespace Api_CodeReview.Repository
             await _context.SaveChangesAsync();
         }
 
+        public bool RepositoryExist(int id)
+        {
+            return _context.Repositorios.Any(n => n.Id_repositorio == id);
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

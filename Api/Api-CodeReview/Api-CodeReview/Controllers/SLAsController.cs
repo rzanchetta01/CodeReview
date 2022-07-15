@@ -3,6 +3,7 @@ using Api_CodeReview.Models;
 using Api_CodeReview.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,23 +25,31 @@ namespace Api_CodeReview.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SLA>>> GetSLAS()
         {
-            var slas = await service.GetAll();
+            try
+            {
+                var slas = await service.GetAll();
+                return Ok(slas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
 
-            return Ok(slas);
         }
 
         // GET: api/SLAs/5
         [HttpGet("{id}")]
         public async Task<ActionResult<SLA>> GetSLA(int id) 
         {
-            var sla = await service.GetById(id);
-
-            if (sla == null)
+            try
             {
-                return NotFound();
+                var sla = await service.GetById(id);
+                return Ok(sla);
             }
-
-            return Ok(sla);
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // PUT: api/SLAs/5
@@ -48,13 +57,15 @@ namespace Api_CodeReview.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSLA(int id, SLA sla)
         {
-            if (id != sla.Id_SLA)
+            try
             {
-                return BadRequest();
+                await service.Update(sla, id);
+                return Ok();
             }
-
-            await service.Update(sla);
-            return Ok();
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // POST: api/SLAs
@@ -62,17 +73,30 @@ namespace Api_CodeReview.Controllers
         [HttpPost]
         public async Task<ActionResult<SLA>> PostSLA(SLA sla)
         {
-            await service.Post(sla);
-            return CreatedAtAction(nameof(GetSLAS), new { id = sla.Id_SLA }, sla);
+            try
+            {
+                await service.Post(sla);
+                return CreatedAtAction(nameof(GetSLAS), new { id = sla.Id_SLA }, sla);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // DELETE: api/SLAs/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSLA(int id)
         {
-            await service.Delete(id);
-
-            return Ok();
+            try
+            {
+                await service.Delete(id);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

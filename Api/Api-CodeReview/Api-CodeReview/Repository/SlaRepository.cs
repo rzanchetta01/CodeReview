@@ -46,7 +46,7 @@ namespace Api_CodeReview.Repository
             await Save();
         }
 
-        public async Task Save()
+        private async Task Save()
         {
             await _context.SaveChangesAsync();
         }

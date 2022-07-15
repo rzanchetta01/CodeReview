@@ -10,7 +10,6 @@ namespace Api_CodeReview.Repository.Interfaces
     {
         Task<IEnumerable<SLA>> GetAll();
         Task<SLA> GetById(int id);
-        Task Save();
         Task Update(SLA sla);
         Task Delete(int id);
         Task Post(SLA sla);

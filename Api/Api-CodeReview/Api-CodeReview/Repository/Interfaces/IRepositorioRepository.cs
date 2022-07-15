@@ -14,5 +14,6 @@ namespace Api_CodeReview.Repository
         Task Post(Repositorio repositorio);
         Task Update(Repositorio repositorio);
         Task Delete(int id);
+        bool RepositoryExist(int id);
     }
 }

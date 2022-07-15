@@ -12,6 +12,7 @@ namespace Api_CodeReview.Repository.Interfaces
         void Post(Commit commit);
         void Update(Commit commit);
         void Delete(int id);
-        void Save();
+        bool CommitExist(int id);
+        bool CommitExistByIdBranch(int idBranch);
     }
 }
