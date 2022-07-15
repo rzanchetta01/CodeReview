@@ -25,8 +25,8 @@ namespace ExecutavelGitAnalyzer
 
                 var repName = folder.Value;
                 repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
-                string[] repoSelectedBranchs = Db.SelectOperations.GetRepositoryBranchs(repName);
-                
+                string[] repoSelectedBranchs = Db.SelectOperations.GetRepositoryBranchs(repName);             
+
                 foreach (var branch in repos.Branches)
                 {
                     if (!branch.FriendlyName.EndsWith("HEAD") && repoSelectedBranchs.Contains(branch.FriendlyName))
@@ -35,6 +35,8 @@ namespace ExecutavelGitAnalyzer
                         SlaAnalyzer(branch, repName);
                     }
                 }
+
+                
             }
         }
 
@@ -77,11 +79,17 @@ namespace ExecutavelGitAnalyzer
 
             Commit lastCommit = branch.Commits.ElementAtOrDefault(0);
             DateTime lastCommitDate = lastCommit.Author.When.DateTime;
-            DateTime dbLastCommitDate = Db.SelectOperations.GetLastCommitDate(branch.FriendlyName, repoName);
+            (DateTime, string) dbLastCommitDateAndId = Db.SelectOperations.GetLastCommitDateAndId(branch.FriendlyName, repoName);
+            int idBranch = Db.SelectOperations.GetBranchId(branch.FriendlyName, repoName);
 
-            if (lastCommitDate.CompareTo(dbLastCommitDate) > 0)
+            if (dbLastCommitDateAndId.Item2 == null)
+                Db.OtherOperations.InsertLastCommit(new Models.Commit(lastCommit.Id.ToString(), lastCommit.Message, lastCommit.Author.Name, lastCommitDate), idBranch);
+
+
+            if (lastCommitDate.CompareTo(dbLastCommitDateAndId.Item1) > 0)
             {
                 SendCommitEmail(branch, repoName, lastCommit, repoLink);
+                Db.OtherOperations.UpdateLastCommit(new Models.Commit(lastCommit.Id.ToString(), lastCommit.Message, lastCommit.Author.Name, lastCommitDate), dbLastCommitDateAndId.Item2);
             }
         }
 
@@ -97,18 +105,18 @@ namespace ExecutavelGitAnalyzer
             }
         }
 
-        private static void SendCommitEmail(Branch branch, string repoName, Commit commit, string link)
+        private static void SendCommitEmail(Branch branch, string repoName, Commit newCommit, string link)
         {
             if (link.EndsWith(".git"))
                 link = link.Remove(link.Length - 4, 4);
 
-            string url = @$"{link}" + @$"/commit/{commit.Id}?refName=refs%2Fheads%2F{branch.FriendlyName}";
+            string url = @$"{link}" + @$"/commit/{newCommit.Id}?refName=refs%2Fheads%2F{branch.FriendlyName}";
 
             var conteudo =
             $"Um novo commit foi registrado\n" +
-            $"{commit.Author.Name.Trim()} | {commit.Author.Email.Trim()} " +
-            $"{commit.Author.When.DateTime} \n" +
-            $"{commit.MessageShort.Trim()} |" +
+            $"{newCommit.Author.Name.Trim()} | {newCommit.Author.Email.Trim()} " +
+            $"{newCommit.Author.When.DateTime} \n" +
+            $"{newCommit.MessageShort.Trim()} |" +
             $"{branch.FriendlyName.Trim()} " +
             $"{url.Trim()}";
 
@@ -117,8 +125,7 @@ namespace ExecutavelGitAnalyzer
             Console.WriteLine("\n");
 
             var email = Db.SelectOperations.GetBranchEmails(branch.FriendlyName, repoName);
-
-            Email.EmailOperations.SendNewCommitEmail(conteudo, commit.Author.Name, branch.FriendlyName, email.Item2);
+            Email.EmailOperations.SendNewCommitEmail(conteudo, newCommit.Author.Name, branch.FriendlyName, email.Item2);
         }
 
         private static void SendSlaEmail(Branch branch, string repoName)
@@ -140,6 +147,9 @@ namespace ExecutavelGitAnalyzer
         {
             if (config.Url.StartsWith("https"))
                 config.Url = config.Url[8..];
+
+            config.Password = Util.Criptografia.Decrypt(config.Password);
+            config.Username = Util.Criptografia.Decrypt(config.Username);
 
             string cloneUrl = $"https://{config.Username}:{config.Password}@{config.Url}";
             string cmdCommand = @$"/C cd repos && git clone {cloneUrl}";
