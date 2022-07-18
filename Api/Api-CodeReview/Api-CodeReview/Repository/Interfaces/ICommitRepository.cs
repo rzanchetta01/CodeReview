@@ -8,11 +8,12 @@ namespace Api_CodeReview.Repository.Interfaces
 {
     interface ICommitRepository
     {
-        Commit GetById(int id);
-        void Post(Commit commit);
+        Commit GetById(string id);
+        Task Post(Commit commit);
         void Update(Commit commit);
-        void Delete(int id);
-        bool CommitExist(int id);
-        bool CommitExistByIdBranch(int idBranch);
+        Task Delete(string id);
+        Task<bool> CommitExist(string id);
+        Task<bool> CommitExistByIdBranch(int idBranch);
+        Task<Commit> CommitByIdBranch(int idBranch);
     }
 }

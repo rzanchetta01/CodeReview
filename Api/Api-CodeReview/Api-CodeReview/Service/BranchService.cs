@@ -103,8 +103,13 @@ namespace Api_CodeReview.Service
             if (!repository.BranchExist(id))
                 throw new Exception("id não existe ja existe");
 
-            if (commitRepository.CommitExistByIdBranch(id))
-                throw new Exception("essa branch ainda tem ultimo commit registrado");
+            if (await commitRepository .CommitExistByIdBranch(id))
+            {
+                Models.Commit commit = await commitRepository.CommitByIdBranch(id);
+                await commitRepository.Delete(commit.Id_commit);
+            }
+                
+                
 
 
             await repository.Delete(id);

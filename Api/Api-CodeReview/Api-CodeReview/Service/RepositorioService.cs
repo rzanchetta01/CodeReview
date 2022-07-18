@@ -11,10 +11,13 @@ namespace Api_CodeReview.Service
     public class RepositorioService
     {
         private readonly IRepositorioRepository repository;
+        private readonly IBranchRepository branchRepository;
+
 
         public RepositorioService(AppDbContext context)
         {
             repository = new RepositorioRepository(context);
+            branchRepository = new BranchRepository(context);
         }
 
         public async Task<IEnumerable<Repositorio>> GetAll()
@@ -69,6 +72,9 @@ namespace Api_CodeReview.Service
         {
             if (!repository.RepositoryExist(id))
                 throw new Exception("Id não existe");
+
+            if (!branchRepository.BranchExistByRepositoryId(id))
+                throw new Exception("Delete as branchs registradas a esse repositorio primeiro");
 
             await repository.Delete(id);
         }

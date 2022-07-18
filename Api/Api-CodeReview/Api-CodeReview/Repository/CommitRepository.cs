@@ -3,6 +3,7 @@ using Api_CodeReview.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Api_CodeReview.Repository.Interfaces
 {
@@ -16,21 +17,21 @@ namespace Api_CodeReview.Repository.Interfaces
             _context = context;
         }
 
-        public void Delete(int id)
+        public async Task Delete(string id)
         {
-            var com = _context.Commits.Find(id);
-            _context.Commits.Remove(com);
+            var com = await _context.Commits.FindAsync(id);
+             _context.Commits.Remove(com);
             Save();
         }
 
-        public Commit GetById(int id)
+        public Commit GetById(string id)
         {
             return _context.Commits.Find(id);
         }
 
-        public void Post(Commit commit)
+        public async Task Post(Commit commit)
         {
-            _context.Commits.Add(commit);
+            await _context.Commits.AddAsync(commit);
             Save();
         }
 
@@ -45,11 +46,11 @@ namespace Api_CodeReview.Repository.Interfaces
             Save();
         }
 
-        public bool CommitExist(int id)
+        public async Task<bool> CommitExist(string id)
         {
             try
             {
-                _context.Commits.Find(id);
+                await _context.Commits.FindAsync(id);
                 return true;
             }
             catch (Exception)
@@ -58,11 +59,11 @@ namespace Api_CodeReview.Repository.Interfaces
             } 
         }
 
-        public bool CommitExistByIdBranch(int id)
+        public async Task<bool> CommitExistByIdBranch(int id)
         {
             try
             {
-                var result = _context.Commits.AsNoTracking().FirstOrDefaultAsync(n => n.Id_branch == id);
+                var result = await _context.Commits.AsNoTracking().FirstOrDefaultAsync(n => n.Id_branch == id);
                 if (result == null)
                     return false;
 
@@ -72,6 +73,14 @@ namespace Api_CodeReview.Repository.Interfaces
             {
                 return false;
             }
+        }
+
+        public async Task<Commit> CommitByIdBranch(int idBranch)
+        {
+
+            var commit = await _context.Commits.AsNoTracking().FirstOrDefaultAsync(n => n.Id_branch == idBranch);
+            return commit;
+
         }
 
         protected virtual void Dispose(bool disposing)

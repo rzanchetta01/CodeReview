@@ -15,6 +15,7 @@ namespace Api_CodeReview.Repository
         bool BranchExist(int id);
 
         bool BranchExistByNome(string nome);
+        bool BranchExistByRepositoryId(int id);
         string[] ListarPossiveisBranchs(Repositorio repositorio);
     }
 }

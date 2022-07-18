@@ -136,5 +136,20 @@ namespace Api_CodeReview.Repository
                 return false;
             }
         }
+        public bool BranchExistByRepositoryId(int id)
+        {
+            try
+            {
+                var branch = _context.Branchs.FirstOrDefault(n => n.Id_repositorio == id);
+                if (branch == null)
+                    return true;
+
+                return false;
+            }
+            catch(Exception)
+            {
+                return false;
+            }
+        }
     }
 }
