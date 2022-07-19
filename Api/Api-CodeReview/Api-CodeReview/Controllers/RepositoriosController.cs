@@ -1,7 +1,9 @@
 ﻿using Api_CodeReview.Context;
 using Api_CodeReview.Models;
+using Api_CodeReview.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,38 +14,41 @@ namespace Api_CodeReview.Controllers
     [ApiController]
     public class RepositoriosController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly RepositorioService service;
 
         public RepositoriosController(AppDbContext context)
         {
-            _context = context;
+            service = new(context);
         }
 
         // GET: api/Repositorios
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Repositorio>>> GetRepositorios()
         {
-            return await _context
-                                .Repositorios
-                                .AsNoTracking()
-                                .ToListAsync();
+            try
+            {
+                var repos = await service.GetAll();
+                return Ok(repos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // GET: api/Repositorios/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Repositorio>> GetByIdRepositorio(int id)
         {
-            var repositorio = await _context
-                                            .Repositorios
-                                            .AsNoTracking()
-                                            .FirstOrDefaultAsync(x => x.Id_repositorio == id);
-
-            if (repositorio == null)
+            try
             {
-                return NotFound();
+                var repositorio = await service.GetById(id);
+                return Ok(repositorio);
             }
-
-            return repositorio;
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // PUT: api/Repositorios/5
@@ -51,30 +56,15 @@ namespace Api_CodeReview.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRepositorio(int id, Repositorio repositorio)
         {
-            if (id != repositorio.Id_repositorio)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(repositorio).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await service.Update(repositorio, id);
+                return Ok();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception e)
             {
-                if (!RepositorioExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest(e.Message);
             }
-
-            return NoContent();
         }
 
         // POST: api/Repositorios
@@ -82,43 +72,31 @@ namespace Api_CodeReview.Controllers
         [HttpPost]
         public async Task<ActionResult<Repositorio>> PostRepositorio(Repositorio repositorio)
         {
-            _context.Repositorios.Add(repositorio);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await service.Post(repositorio);
+                return CreatedAtAction(nameof(GetRepositorios), new { id = repositorio.Id_repositorio }, repositorio);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
 
-            return CreatedAtAction(nameof(GetRepositorios), new { id = repositorio.Id_repositorio}, repositorio);
         }
 
         // DELETE: api/Repositorios/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRepositorio(int id)
         {
-            var repositorio = await _context.Repositorios.FindAsync(id);
-            var branch = await _context.Branchs.FirstOrDefaultAsync(x => x.Id_repositorio == id);
-
-            if (repositorio == null)
+            try
             {
-                return NotFound();
-            } 
-            else if (branch == null)
-            { 
-                _context.Repositorios.Remove(repositorio);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                await service.Delete(id);
+                return Ok();
             }
-            else if (branch.Id_repositorio == repositorio.Id_repositorio)
+            catch (Exception e )
             {
-                return BadRequest("This repository has connection with others tables in the database");
-            } 
-            else
-            {
-                return NoContent();
+                return BadRequest(e.Message);
             }
-        }
-
-        private bool RepositorioExists(int id)
-        {
-            return _context.Repositorios.Any(e => e.Id_repositorio == id);
         }
     }
 }

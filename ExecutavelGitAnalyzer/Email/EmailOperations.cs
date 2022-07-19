@@ -20,7 +20,7 @@ namespace ExecutavelGitAnalyzer.Email
             bsc.Senha = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["password"]);
             bsc.Prioridade = MailPriority.Normal;
             bsc.Titulo = @$"NOVO REVIEW DE COMMIT NA BRANCH {branch} // AUTOR {autor}";
-            bsc.To = new string[] { reviewEmail };
+            bsc.To = new string[] { Util.Criptografia.Decrypt(reviewEmail) };
             bsc.Cc = null;
             bsc.From = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
             bsc.FromNome = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["name"]);
@@ -39,8 +39,9 @@ namespace ExecutavelGitAnalyzer.Email
             bsc.Usuario = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
             bsc.Senha = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["password"]);
             bsc.Prioridade = MailPriority.Normal;
-            bsc.Titulo = @$"AVISO DE VIOLAÇÃO DE SLA NA BRANCH {branch} // DEV RESPONSAVEL {devResponsavelAndSupervisor.Item1}";
-            bsc.To = new string[] { devResponsavelAndSupervisor.Item1, devResponsavelAndSupervisor.Item2 };
+            bsc.Titulo = @$"AVISO DE VIOLAÇÃO DE SLA NA BRANCH {branch} // DEV RESPONSAVEL {Util.Criptografia.Decrypt(devResponsavelAndSupervisor.Item1)}";
+            bsc.To = new string[] { Util.Criptografia.Decrypt(devResponsavelAndSupervisor.Item1),
+                Util.Criptografia.Decrypt(devResponsavelAndSupervisor.Item2) };
             bsc.Cc = null;
             bsc.From = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
             bsc.FromNome = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["name"]);

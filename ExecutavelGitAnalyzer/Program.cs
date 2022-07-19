@@ -11,11 +11,10 @@ namespace ExecutavelGitAnalyzer
         static void Main(string[] args)
         {
 
-            // Util.Tools.ShutDownConfigurations();
+            //Util.Tools.ShutDownConfigurations();
             //Util.Tools.InitalConfig();
             GitOperations.ReadAllRepos();
 
         }
-
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Api_CodeReview.Context;
 using Api_CodeReview.Models;
+using Api_CodeReview.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,38 +14,42 @@ namespace Api_CodeReview.Controllers
     [ApiController]
     public class SLAsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly SlaService service;
 
         public SLAsController(AppDbContext context)
         {
-            _context = context;
+            service = new SlaService(context);
         }
 
         // GET: api/SLAs
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SLA>>> GetSLAS()
         {
-            return await _context
-                                .SLAS
-                                .AsNoTracking()
-                                .ToListAsync();
+            try
+            {
+                var slas = await service.GetAll();
+                return Ok(slas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
         }
 
         // GET: api/SLAs/5
         [HttpGet("{id}")]
         public async Task<ActionResult<SLA>> GetSLA(int id) 
         {
-            var sla = await _context
-                                    .SLAS
-                                    .AsNoTracking()
-                                    .FirstOrDefaultAsync(x => x.Id_SLA == id);
-
-            if (sla == null)
+            try
             {
-                return NotFound();
+                var sla = await service.GetById(id);
+                return Ok(sla);
             }
-
-            return sla;
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // PUT: api/SLAs/5
@@ -51,30 +57,15 @@ namespace Api_CodeReview.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSLA(int id, SLA sla)
         {
-            if (id != sla.Id_SLA)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(sla).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await service.Update(sla, id);
+                return Ok();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception e)
             {
-                if (!SLAExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest(e.Message);
             }
-
-            return NoContent();
         }
 
         // POST: api/SLAs
@@ -82,32 +73,30 @@ namespace Api_CodeReview.Controllers
         [HttpPost]
         public async Task<ActionResult<SLA>> PostSLA(SLA sla)
         {
-            _context.SLAS.Add(sla);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetSLAS), new { id = sla.Id_SLA }, sla);
+            try
+            {
+                await service.Post(sla);
+                return CreatedAtAction(nameof(GetSLAS), new { id = sla.Id_SLA }, sla);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         // DELETE: api/SLAs/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSLA(int id)
         {
-            var sla = await _context.SLAS.FindAsync(id);
-
-            if (sla == null)
+            try
             {
-                return NotFound();
+                await service.Delete(id);
+                return Ok();
             }
-
-            _context.SLAS.Remove(sla);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool SLAExists(int id)
-        {
-            return _context.SLAS.Any(e => e.Id_SLA == id);
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

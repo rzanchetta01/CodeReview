@@ -26,6 +26,7 @@ namespace Api_CodeReview.Models
         public string Nm_senha { get; set; }
 
         [Required]
+        [EmailAddress]
         [StringLength(50, MinimumLength = 10)]
         public string Nm_email_admin { get; set; }
     }

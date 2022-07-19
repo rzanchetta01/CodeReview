@@ -8,9 +8,9 @@ namespace ExecutavelGitAnalyzer.Db
 {
     class SelectOperations
     {
-        public static DateTime GetLastCommitDate(string branchName, string repoName)
+        public static (DateTime, string) GetLastCommitDateAndId(string branchName, string repoName)
         {
-            DateTime result = DateTime.Now;
+            (DateTime, string) result = (DateTime.Now, null);
 
             string connString = Util.Criptografia.Decrypt(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
             using SqlConnection conn = new(connString);
@@ -22,7 +22,7 @@ namespace ExecutavelGitAnalyzer.Db
             pRepoName.ParameterName = "@repoName";
             pRepoName.Value = repoName;
 
-            string cmd = @"SELECT c.Dt_commit FROM tbCommit c (nolock)
+            string cmd = @"SELECT c.Dt_commit c.Id_Commit FROM tbCommit c (nolock)
 	                        JOIN tbBranch b (nolock)
                         ON b.Id_branch = c.Id_branch
                             join tbRepositorio r (nolock)
@@ -40,7 +40,8 @@ namespace ExecutavelGitAnalyzer.Db
 
                 while (reader.Read())
                 {
-                    result = reader.GetDateTime(0);
+                    result.Item1 = reader.GetDateTime(0);
+                    result.Item2 = reader.GetString(1);
                 }
 
             }
@@ -227,6 +228,54 @@ namespace ExecutavelGitAnalyzer.Db
             }
 
             return branchs.ToArray();
+        }
+
+        public static int GetBranchId(string nmBranch, string repoName)
+        {
+            int result = -1;
+
+            string connString = Util.Criptografia.Decrypt(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
+            using SqlConnection conn = new(connString);
+
+            SqlParameter pBranchName = new();
+            pBranchName.ParameterName = "@branchName";
+            pBranchName.Value = nmBranch;
+
+            SqlParameter pRepoName = new();
+            pRepoName.ParameterName = "@repoName";
+            pRepoName.Value = repoName;
+
+            string cmd = @"SELECT b.Id_Branch FROM tbBranch b (nolock)
+	                            JOIN tbRepositorio r (nolock)
+                            ON b.Id_repositorio = r.Id_repositorio
+                            WHERE b.Nm_branch = @branchName and r.Nm_repositorio = @repoName";
+
+            using SqlCommand command = new(cmd, conn);
+            command.Parameters.Add(pRepoName);
+            command.Parameters.Add(pBranchName);
+
+            try
+            {
+                conn.Open();
+                using SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    result = (int)reader[0];
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("ERRO AO PEGAR ID DA BRANCH"+nmBranch+"\n" + e.Message);
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+
+            return result;
         }
     }
 }
