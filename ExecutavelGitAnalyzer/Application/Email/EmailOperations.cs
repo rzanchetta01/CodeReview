@@ -1,34 +1,40 @@
-﻿using System;
+﻿using ExecutavelGitAnalyzer.Models;
+using System;
 using System.Configuration;
 using System.Net.Mail;
 using System.Text;
 
-namespace ExecutavelGitAnalyzer.Email
+namespace ExecutavelGitAnalyzer.Application
 {
     class EmailOperations
     {
-        private static readonly string hostEmail = "smtp-mail.outlook.com";
+        private readonly string hostEmail = "smtp-mail.outlook.com";
 
-        public static void SendNewCommitEmail(string conteudo, string autor, string branch, string reviewEmail)
+        public EmailOperations()
+        {
+
+        }
+
+        public void SendNewCommitEmail(string conteudo, string autor, string branch, string reviewEmail)
         {
             BaseEmail bs = new();
             bs.IsHtml = false;
             bs.Conteudo = conteudo;
 
             BaseEmailConfig bsc = new();
-            bsc.Usuario = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
-            bsc.Senha = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["password"]);
+            bsc.Usuario = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.Senha = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["password"]);
             bsc.Prioridade = MailPriority.Normal;
             bsc.Titulo = @$"NOVO REVIEW DE COMMIT NA BRANCH {branch} // AUTOR {autor}";
-            bsc.To = new string[] { Util.Criptografia.Decrypt(reviewEmail) };
+            bsc.To = new string[] { Service.CriptografiaService.Decrypt(reviewEmail) };
             bsc.Cc = null;
-            bsc.From = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
-            bsc.FromNome = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["name"]);
+            bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
 
             SendEmail(bsc, bs);
         }
 
-        public static void SendSlaEmail(string conteudo, (string,string) devResponsavelAndSupervisor, string branch)
+        public void SendSlaEmail(string conteudo, (string,string) devResponsavelAndSupervisor, string branch)
         {
 
             BaseEmail bs = new();
@@ -36,26 +42,26 @@ namespace ExecutavelGitAnalyzer.Email
             bs.Conteudo = conteudo;
 
             BaseEmailConfig bsc = new();
-            bsc.Usuario = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
-            bsc.Senha = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["password"]);
+            bsc.Usuario = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.Senha = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["password"]);
             bsc.Prioridade = MailPriority.Normal;
-            bsc.Titulo = @$"AVISO DE VIOLAÇÃO DE SLA NA BRANCH {branch} // DEV RESPONSAVEL {Util.Criptografia.Decrypt(devResponsavelAndSupervisor.Item1)}";
-            bsc.To = new string[] { Util.Criptografia.Decrypt(devResponsavelAndSupervisor.Item1),
-                Util.Criptografia.Decrypt(devResponsavelAndSupervisor.Item2) };
+            bsc.Titulo = @$"AVISO DE VIOLAÇÃO DE SLA NA BRANCH {branch} // DEV RESPONSAVEL {Service.CriptografiaService.Decrypt(devResponsavelAndSupervisor.Item1)}";
+            bsc.To = new string[] { Service.CriptografiaService.Decrypt(devResponsavelAndSupervisor.Item1),
+                Service.CriptografiaService.Decrypt(devResponsavelAndSupervisor.Item2) };
             bsc.Cc = null;
-            bsc.From = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["username"]);
-            bsc.FromNome = Util.Criptografia.Decrypt(ConfigurationManager.AppSettings["name"]);
+            bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
 
             SendEmail(bsc, bs);
         }
 
-        private static void SendEmail(BaseEmailConfig baseEmailConfig, BaseEmail baseEmail)
+        private void SendEmail(BaseEmailConfig baseEmailConfig, BaseEmail baseEmail)
         {
             MailMessage msg = ConstructEmail(baseEmailConfig, baseEmail);
             Send(msg, baseEmailConfig);
         }
 
-        private static MailMessage ConstructEmail(BaseEmailConfig baseEmailConfig, BaseEmail email)
+        private MailMessage ConstructEmail(BaseEmailConfig baseEmailConfig, BaseEmail email)
         {
             MailMessage msg = new();
 
@@ -88,7 +94,7 @@ namespace ExecutavelGitAnalyzer.Email
 
         }
 
-        private static void Send(MailMessage msg, BaseEmailConfig baseEmailConfig)
+        private void Send(MailMessage msg, BaseEmailConfig baseEmailConfig)
         {
             SmtpClient client = new();
             client.UseDefaultCredentials = false;
