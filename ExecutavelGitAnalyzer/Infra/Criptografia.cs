@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace ExecutavelGitAnalyzer.Util
+namespace ExecutavelGitAnalyzer.Infra
 {
     class Criptografia
     {
@@ -47,12 +47,12 @@ namespace ExecutavelGitAnalyzer.Util
                 if (input.Trim() != "")
                 {
                     string myKey = "1111111111111111";  //Aqui vc inclui uma chave qualquer para servir de base para cifrar, que deve ser a mesma no método Codificar
-                    tripledescryptoserviceprovider.Key = md5cryptoserviceprovider.ComputeHash(ASCIIEncoding.ASCII.GetBytes(myKey));
+                    tripledescryptoserviceprovider.Key = md5cryptoserviceprovider.ComputeHash(Encoding.ASCII.GetBytes(myKey));
                     tripledescryptoserviceprovider.Mode = CipherMode.ECB;
                     using ICryptoTransform desdencrypt = tripledescryptoserviceprovider.CreateDecryptor();
                     byte[] buff = Convert.FromBase64String(input);
 
-                    return ASCIIEncoding.ASCII.GetString(desdencrypt.TransformFinalBlock(buff, 0, buff.Length));
+                    return Encoding.ASCII.GetString(desdencrypt.TransformFinalBlock(buff, 0, buff.Length));
                 }
                 else
                 {
