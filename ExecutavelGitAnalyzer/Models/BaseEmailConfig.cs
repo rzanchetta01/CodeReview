@@ -1,8 +1,8 @@
 ﻿using System.Net.Mail;
 
-namespace ExecutavelGitAnalyzer.Email
+namespace ExecutavelGitAnalyzer.Models
 {
-    internal class BaseEmailConfig
+    class BaseEmailConfig
     {
         public string Usuario { get; set; }
         public string Senha { get; set; }
