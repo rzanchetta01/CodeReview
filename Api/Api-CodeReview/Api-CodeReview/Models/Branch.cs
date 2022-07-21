@@ -13,14 +13,16 @@ namespace Api_CodeReview.Models
         public int Id_repositorio { get; set; }
 
         [Required]
-        [StringLength(200, MinimumLength = 6)]
+        [StringLength(200, MinimumLength = 4)]
         public string Nm_branch { get; set; }
 
         [Required]
+        [EmailAddress]
         [StringLength(50, MinimumLength = 10)]
         public string Nm_email_dev { get; set; }
 
         [Required]
+        [EmailAddress]
         [StringLength(50, MinimumLength = 10)]
         public string Nm_email_review { get; set; }
 

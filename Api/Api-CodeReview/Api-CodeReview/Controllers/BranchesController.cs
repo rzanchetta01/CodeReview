@@ -1,7 +1,10 @@
 ﻿using Api_CodeReview.Context;
 using Api_CodeReview.Models;
+using Api_CodeReview.Service;
+using LibGit2Sharp;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,114 +15,84 @@ namespace Api_CodeReview.Controllers
     [ApiController]
     public class BranchesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly BranchService service;
 
         public BranchesController(AppDbContext context)
         {
-            _context = context;
+            service = new(context);
         }
 
         // GET: api/Branches
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Branch>>> GetBranchs()
+        public async Task<ActionResult<IEnumerable<Models.Branch>>> GetBranchs()
         {
-            return await _context
-                                .Branchs
-                                .AsNoTracking()
-                                .ToListAsync();
+            var branches = await service.GetBranches();
+            if (branches != null)
+                return Ok(branches);
+
+            return NotFound();
         }
 
         // GET: api/Branches/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Branch>> GetByIdBranch(int id)
+        public async Task<ActionResult<Models.Branch>> GetByIdBranch(int id)
         {
-            var branch = await _context
-                                        .Branchs
-                                        .AsNoTracking()
-                                        .FirstOrDefaultAsync(x => x.Id_branch == id);
+            var branch = await service.GetBranch(id);
 
             if (branch == null)
             {
                 return NotFound();
             }
 
-            return branch;
+            return Ok(branch);
         }
 
         // PUT: api/Branches/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBranch(int id, Branch branch)
+        public async Task<IActionResult> PutBranch(int id, Models.Branch branch)
         {
-            if (id != branch.Id_branch)
+            try 
+            {
+                await service.PutBranch(branch, id);
+                return Accepted();
+            }
+            catch(Exception)
             {
                 return BadRequest();
             }
-
-            _context.Entry(branch).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BranchExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
         }
 
         // POST: api/Branches
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Branch>> PostBranch(Branch branch)
+        public async Task<ActionResult<Models.Branch>> PostBranch(Models.Branch branch)
         {
-            _context.Branchs.Add(branch);
-            await _context.SaveChangesAsync();
-
-            //No momento da criação de uma branch, buscar o último commit e gravar na base de dados junto com a data.
-            return CreatedAtAction(nameof(GetBranchs), new { id = branch.Id_branch }, branch);
+            try
+            {
+                await service.PostBranch(branch);
+                return CreatedAtAction(nameof(GetBranchs), new { id = branch.Id_branch }, branch);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }     
         }
 
         // DELETE: api/Branches/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBranch(int id)
         {
-            var branch = await _context.Branchs.FindAsync(id);
-            var commit = await _context.Commits.FirstOrDefaultAsync(x => x.Id_branch == id);
-
-            if (branch == null)
+            try
             {
-                return NotFound();
+                await service.DeleteBranch(id);
+                return Ok();
             }
-            else if (commit == null) 
-            { 
-                _context.Branchs.Remove(branch);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
-            }
-            else if (commit.Id_branch == branch.Id_branch)
+            catch (Exception e)
             {
-                return BadRequest("This branch has connection with others tables in the database");
-            }
-            else
-            {
-                return NoContent();
+                return BadRequest(e.Message);
             }
         }
 
-        private bool BranchExists(int id)
-        {
-            return _context.Branchs.Any(e => e.Id_branch == id);
-        }
     }
 }

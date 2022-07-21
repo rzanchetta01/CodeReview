@@ -17,10 +17,10 @@ namespace Api_CodeReview.Context
         {
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(@"C:\Users\gabriella.santos\AppData\Roaming\Microsoft\UserSecrets\55096667-32d7-4a8c-bd60-0dfe502ba1a8\secrets.json", false, false)
+                .AddJsonFile("appsettings.json", false, false)
                 .Build();
 
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DEV_CodeReview"));
+            optionsBuilder.UseSqlServer(Service.CriptografiaService.Decrypt(configuration.GetConnectionString("DEV_CodeReview")));
         }
     }
 }
