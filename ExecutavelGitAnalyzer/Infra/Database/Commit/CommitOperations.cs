@@ -26,7 +26,7 @@ namespace ExecutavelGitAnalyzer.Infra.Database.Commit
             SqlParameter pBranchName = CreateParam("@branchName", branchName);
             SqlParameter pRepoName = CreateParam("@repoName", repoName);
 
-            string cmd = @"SELECT c.Dt_commit c.Id_Commit FROM tbCommit c (nolock)
+            string cmd = @"SELECT c.Dt_commit, c.Id_Commit FROM tbCommit c (nolock)
 	                        JOIN tbBranch b (nolock)
                         ON b.Id_branch = c.Id_branch
                             join tbRepositorio r (nolock)

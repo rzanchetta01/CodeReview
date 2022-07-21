@@ -109,13 +109,13 @@ namespace ExecutavelGitAnalyzer.Infra.Database.Branch
             {
                 conn.Open();
                 using SqlDataReader reader = command.ExecuteReader();
-                string data = null;
+                int data = -1;
                 while (reader.Read())
                 {
-                    data = (string)reader[0];
+                    data = (int)reader[0];
                 }
 
-                if (!data.Equals(null))
+                if (data != -1)
                 {
                     return true;
                 }

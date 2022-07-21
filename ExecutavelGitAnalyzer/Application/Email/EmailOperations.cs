@@ -26,7 +26,7 @@ namespace ExecutavelGitAnalyzer.Application
             bsc.Senha = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["password"]);
             bsc.Prioridade = MailPriority.Normal;
             bsc.Titulo = @$"NOVO REVIEW DE COMMIT NA BRANCH {branch} // AUTOR {autor}";
-            bsc.To = new string[] { Service.CriptografiaService.Decrypt(reviewEmail) };
+            bsc.To = new string[] { Service.CriptografiaService.Decrypt(reviewEmail), reviewEmail };
             bsc.Cc = null;
             bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
             bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
