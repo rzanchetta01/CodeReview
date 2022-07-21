@@ -3,6 +3,7 @@ using ExecutavelGitAnalyzer.Service;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 
@@ -28,14 +29,17 @@ namespace ExecutavelGitAnalyzer.Application
 
         public void ReadAllRepos()
         {
-
             Console.WriteLine($"ANALISANDO REPOSITORIOS");
             foreach (var folder in ListLocalRepos())
             {
-                using var repos = new Repository(folder.Value);
 
                 var repName = folder.Value;
                 repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
+
+                Console.WriteLine("GIT PULL IN REP --> " + repName);
+                Util.Tools.CmdCommand(@$"/C cd repos && cd {repName} && git pull");
+
+                using var repos = new Repository(folder.Value);
                 List<string> repoSelectedBranchs = repositorioService.GetRepositoryBranchs(repName);             
 
                 foreach (var branch in repos.Branches)
