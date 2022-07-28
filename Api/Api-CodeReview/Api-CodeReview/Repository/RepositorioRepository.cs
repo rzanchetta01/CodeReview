@@ -62,7 +62,18 @@ namespace Api_CodeReview.Repository
 
         public bool RepositoryExist(int id)
         {
-            return _context.Repositorios.Any(n => n.Id_repositorio == id);
+            try
+            {
+                var repos = _context.Repositorios.FirstOrDefault(n => n.Id_repositorio == id);
+                if (repos == null)
+                    return false;
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         protected virtual void Dispose(bool disposing)

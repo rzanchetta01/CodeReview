@@ -1,16 +1,10 @@
-﻿using Api_CodeReview.Models;
-using LibGit2Sharp;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Api_CodeReview.Service
+namespace CodeReviewService.Infra
 {
-    public class CriptografiaService
+    class Criptografia
     {
         public static string Encrypt(string input)
         {
@@ -53,12 +47,12 @@ namespace Api_CodeReview.Service
                 if (input.Trim() != "")
                 {
                     string myKey = "M3tL1fe";  //Aqui vc inclui uma chave qualquer para servir de base para cifrar, que deve ser a mesma no método Codificar
-                    tripledescryptoserviceprovider.Key = md5cryptoserviceprovider.ComputeHash(ASCIIEncoding.ASCII.GetBytes(myKey));
+                    tripledescryptoserviceprovider.Key = md5cryptoserviceprovider.ComputeHash(Encoding.ASCII.GetBytes(myKey));
                     tripledescryptoserviceprovider.Mode = CipherMode.ECB;
                     using ICryptoTransform desdencrypt = tripledescryptoserviceprovider.CreateDecryptor();
                     byte[] buff = Convert.FromBase64String(input);
 
-                    return ASCIIEncoding.ASCII.GetString(desdencrypt.TransformFinalBlock(buff, 0, buff.Length));
+                    return Encoding.ASCII.GetString(desdencrypt.TransformFinalBlock(buff, 0, buff.Length));
                 }
                 else
                 {
