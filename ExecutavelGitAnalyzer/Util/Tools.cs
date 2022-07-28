@@ -16,6 +16,7 @@ namespace ExecutavelGitAnalyzer.Util
 
         public static string GetReposPath()
         {
+            //string path = AppDomain.CurrentDomain.BaseDirectory;
             string path = AppDomain.CurrentDomain.BaseDirectory;
             path += @"\repos";
             return path;
@@ -43,7 +44,9 @@ namespace ExecutavelGitAnalyzer.Util
         private static void CreateRepoFolder()
         {
             Console.WriteLine("Criando temp para armazenar repositórios");
-            string cmdCommand = @"/C mkdir repos";
+            string path = AppDomain.CurrentDomain.BaseDirectory;
+            string cmdCommand = @$"/C cd {path} && mkdir repos";
+            
             CmdCommand(cmdCommand);
         }
 
