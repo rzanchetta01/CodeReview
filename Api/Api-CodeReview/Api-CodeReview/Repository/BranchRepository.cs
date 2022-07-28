@@ -98,7 +98,18 @@ namespace Api_CodeReview.Repository
 
         public bool BranchExist(int id)
         {
-            return _context.Branchs.Any(e => e.Id_branch == id);
+            try
+            {
+                var branch = _context.Branchs.FirstOrDefault(n => n.Id_branch == id);
+                if (branch == null)
+                    return false;
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public string[] ListarPossiveisBranchs(Repositorio repo)

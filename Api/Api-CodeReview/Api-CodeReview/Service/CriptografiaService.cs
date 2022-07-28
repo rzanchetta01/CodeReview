@@ -21,7 +21,7 @@ namespace Api_CodeReview.Service
             {
                 if (input.Trim() != "")
                 {
-                    string myKey = "1111111111111111";  //Aqui vc inclui uma chave qualquer para servir de base para cifrar, que deve ser a mesma no método Decodificar
+                    string myKey = "M3tL1fe";  //Aqui vc inclui uma chave qualquer para servir de base para cifrar, que deve ser a mesma no método Decodificar
                     tripledescryptoserviceprovider.Key = md5cryptoserviceprovider.ComputeHash(Encoding.ASCII.GetBytes(myKey));
                     tripledescryptoserviceprovider.Mode = CipherMode.ECB;
                     using ICryptoTransform desdencrypt = tripledescryptoserviceprovider.CreateEncryptor();
@@ -33,13 +33,13 @@ namespace Api_CodeReview.Service
                 }
                 else
                 {
-                    return "";
+                    return input;
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Erro ao cifrar : {e.Message}");
-                return null;
+                return input;
             }
         }
 
@@ -52,7 +52,7 @@ namespace Api_CodeReview.Service
             {
                 if (input.Trim() != "")
                 {
-                    string myKey = "1111111111111111";  //Aqui vc inclui uma chave qualquer para servir de base para cifrar, que deve ser a mesma no método Codificar
+                    string myKey = "M3tL1fe";  //Aqui vc inclui uma chave qualquer para servir de base para cifrar, que deve ser a mesma no método Codificar
                     tripledescryptoserviceprovider.Key = md5cryptoserviceprovider.ComputeHash(ASCIIEncoding.ASCII.GetBytes(myKey));
                     tripledescryptoserviceprovider.Mode = CipherMode.ECB;
                     using ICryptoTransform desdencrypt = tripledescryptoserviceprovider.CreateDecryptor();
@@ -62,13 +62,13 @@ namespace Api_CodeReview.Service
                 }
                 else
                 {
-                    return "";
+                    return input;
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Erro ao decifrar : {e.Message}");
-                return null;
+                return input;
             }
         }
     }

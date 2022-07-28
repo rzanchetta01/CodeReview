@@ -77,7 +77,18 @@ namespace Api_CodeReview.Repository
 
         public bool SlaExist(int id)
         {
-            return _context.SLAS.Any(e => e.Id_SLA == id);
+            try
+            {
+                var repos = _context.SLAS.FirstOrDefault(n => n.Id_SLA == id);
+                if (repos == null)
+                    return false;
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
