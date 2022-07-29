@@ -115,7 +115,7 @@ namespace CodeReviewService.Application
             }
             msg.Dispose();
             Console.WriteLine("EMAIL ENVIADO\n");
-            System.Threading.Thread.Sleep(9000);//Delay para evitar spam
+            System.Threading.Thread.Sleep(TimeSpan.FromMinutes(3));//Delay para evitar spam
         }
 
     }
