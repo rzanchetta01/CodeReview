@@ -1,5 +1,6 @@
 ﻿using Api_CodeReview.Context;
 using Api_CodeReview.Models;
+using Api_CodeReview.Service;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -122,7 +123,7 @@ namespace Api_CodeReview.Repository
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.Arguments = $"git ls-remote 'https://{repo.Nm_usuario}:{repo.Nm_senha}@{urlClone}' 'refs/heads/*'";
+            process.StartInfo.Arguments = $"git ls-remote 'https://{CriptografiaService.Decrypt(repo.Nm_usuario)}:{CriptografiaService.Decrypt(repo.Nm_senha)}@{urlClone}' 'refs/heads/*'";
             process.Start();
             using System.IO.StreamReader stdOut = process.StandardOutput;
             process.WaitForExit();

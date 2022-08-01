@@ -73,12 +73,12 @@ namespace Api_CodeReview.Controllers
                 await service.PostBranch(branch);
                 return CreatedAtAction(nameof(GetBranchs), new { id = branch.Id_branch }, branch);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.Message);
             }     
         }
-
+        
         // DELETE: api/Branches/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBranch(int id)

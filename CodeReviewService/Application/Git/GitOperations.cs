@@ -42,7 +42,7 @@ namespace CodeReviewService.Application
                 Console.WriteLine("GIT PULL IN REP --> " + repName);
                 logger.LogWarning("GIT PULL IN REP --> " + repName);
 
-                Util.Tools.CmdCommand(@$"/C cd repos && cd {repName} && git pull", logger);
+                Util.Tools.CmdCommand(@$"/C cd {Util.Tools.GetReposPath()} && cd {repName} && git pull", logger);
 
                 using var repos = new Repository(folder.Value);
                 List<string> repoSelectedBranchs = repositorioService.GetRepositoryBranchs(repName);             
@@ -147,7 +147,7 @@ namespace CodeReviewService.Application
             Console.WriteLine("\n");
 
             var email = branchService.GetBranchEmailsAdress(branch.FriendlyName, repoName);
-            //emailOperations.SendNewCommitEmail(conteudo, newCommit.Author.Name, branch.FriendlyName, email.Item2);
+            emailOperations.SendNewCommitEmail(conteudo, newCommit.Author.Name, branch.FriendlyName, email.Item2);
         }
 
         private void SendSlaEmail(Branch branch, string repoName)
@@ -161,7 +161,7 @@ namespace CodeReviewService.Application
 
 
             var email = branchService.GetBranchEmailsAdress(branch.FriendlyName, repoName);
-            //emailOperations.SendSlaEmail(conteudo, email, branch.FriendlyName);
+            emailOperations.SendSlaEmail(conteudo, email, branch.FriendlyName);
         }
 
         private void DownloadRepo(Models.CloneConfig config, ILogger logger)
