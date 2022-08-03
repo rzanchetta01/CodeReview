@@ -24,7 +24,7 @@ namespace Api_CodeReview.Controllers
         {
             try
             {
-                //service.PostFeedback(idCommit, feedback);
+                service.PostFeedback(idCommit, feedback);
                 return base.Content($"<h2>COMMIT APROVADO {feedback}</h2>", "text/html");
             }
             catch (Exception)
@@ -61,7 +61,6 @@ namespace Api_CodeReview.Controllers
             + " </script>"
             + "</body>";
             return base.Content(content, "text/html");
-            //return base.Content("<form><div> Feedback </div><textarea></textarea><button type = \"submit\"> Enviar </button></form> ", "text/html");
         }
     }
 }
