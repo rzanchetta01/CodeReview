@@ -1,4 +1,5 @@
 ﻿using CodeReviewService.Models;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Configuration;
 using System.Net.Mail;
@@ -15,10 +16,10 @@ namespace CodeReviewService.Application
 
         }
 
-        public void SendNewCommitEmail(string conteudo, string autor, string branch, string reviewEmail)
+        public void SendNewCommitEmail(string conteudo, string autor, string branch, string reviewEmail, ILogger logger)
         {
             BaseEmail bs = new();
-            bs.IsHtml = false;
+            bs.IsHtml = true;
             bs.Conteudo = conteudo;
 
             BaseEmailConfig bsc = new();
@@ -26,15 +27,15 @@ namespace CodeReviewService.Application
             bsc.Senha = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["password"]);
             bsc.Prioridade = MailPriority.Normal;
             bsc.Titulo = @$"NOVO REVIEW DE COMMIT NA BRANCH {branch} // AUTOR {autor}";
-            bsc.To = new string[] { Service.CriptografiaService.Decrypt(reviewEmail), reviewEmail };
+            bsc.To = new string[] { Service.CriptografiaService.Decrypt(reviewEmail)};
             bsc.Cc = null;
             bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
             bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
 
-            SendEmail(bsc, bs);
+            SendEmail(bsc, bs, logger);
         }
 
-        public void SendSlaEmail(string conteudo, (string,string) devResponsavelAndSupervisor, string branch)
+        public void SendSlaEmail(string conteudo, (string,string) devResponsavelAndSupervisor, string branch, ILogger logger)
         {
 
             BaseEmail bs = new();
@@ -52,49 +53,58 @@ namespace CodeReviewService.Application
             bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
             bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
 
-            SendEmail(bsc, bs);
+            SendEmail(bsc, bs, logger);
         }
 
-        private void SendEmail(BaseEmailConfig baseEmailConfig, BaseEmail baseEmail)
+        private void SendEmail(BaseEmailConfig baseEmailConfig, BaseEmail baseEmail, ILogger logger)
         {
-            MailMessage msg = ConstructEmail(baseEmailConfig, baseEmail);
-            Send(msg, baseEmailConfig);
+            MailMessage msg = ConstructEmail(baseEmailConfig, baseEmail, logger);
+            Send(msg, baseEmailConfig, logger);
         }
 
-        private MailMessage ConstructEmail(BaseEmailConfig baseEmailConfig, BaseEmail email)
+        private MailMessage ConstructEmail(BaseEmailConfig baseEmailConfig, BaseEmail email, ILogger logger)
         {
-            MailMessage msg = new();
-
-            foreach (string to in baseEmailConfig.To)
+            try
             {
-                if (!string.IsNullOrEmpty(to))
-                {
-                    msg.To.Add(to);
-                }
-            }
+                MailMessage msg = new();
 
-            if (baseEmailConfig.Cc != null)
+                foreach (string to in baseEmailConfig.To)
+                {
+                    if (!string.IsNullOrEmpty(to))
+                    {
+                        msg.To.Add(to);
+                    }
+                }
+
+                if (baseEmailConfig.Cc != null)
+                {
+                    foreach (string cc in baseEmailConfig.Cc)
+                    {
+                        if (!string.IsNullOrEmpty(cc))
+                            msg.CC.Add(cc);
+                    }
+                }
+
+                msg.From = new MailAddress(baseEmailConfig.From, baseEmailConfig.FromNome, Encoding.UTF8);
+                msg.IsBodyHtml = email.IsHtml;
+                msg.Body = email.Conteudo;
+                msg.Priority = baseEmailConfig.Prioridade;
+                msg.Subject = baseEmailConfig.Titulo;
+                msg.BodyEncoding = Encoding.UTF8;
+                msg.SubjectEncoding = Encoding.UTF8;
+
+                return msg;
+            }
+            catch (Exception e)
             {
-                foreach (string cc in baseEmailConfig.Cc)
-                {
-                    if (!string.IsNullOrEmpty(cc))
-                        msg.CC.Add(cc);
-                }
+                logger.LogWarning("ERRO AO CONSTRUIR EMAIL " + e.Message);
+                return null;
             }
-
-            msg.From = new MailAddress(baseEmailConfig.From, baseEmailConfig.FromNome, Encoding.UTF8);
-            msg.IsBodyHtml = email.IsHtml;
-            msg.Body = email.Conteudo;
-            msg.Priority = baseEmailConfig.Prioridade;
-            msg.Subject = baseEmailConfig.Titulo;
-            msg.BodyEncoding = Encoding.UTF8;
-            msg.SubjectEncoding = Encoding.UTF8;
-
-            return msg;
+            
 
         }
 
-        private void Send(MailMessage msg, BaseEmailConfig baseEmailConfig)
+        private void Send(MailMessage msg, BaseEmailConfig baseEmailConfig, ILogger logger)
         {
             SmtpClient client = new();
             client.UseDefaultCredentials = false;
@@ -112,6 +122,7 @@ namespace CodeReviewService.Application
             catch (Exception e)
             {
                 Console.WriteLine("ERRO AO ENVIAR EMAIL: {0}", e.Message);
+                logger.LogWarning("ERRO AO ENVIAR EMAIL: {0}", e.Message);
             }
             msg.Dispose();
             Console.WriteLine("EMAIL ENVIADO\n");
