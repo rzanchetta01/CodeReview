@@ -50,11 +50,18 @@ namespace CodeReviewService.Application
 
                 foreach (var branch in repos.Branches)
                 {
-                    if (!branch.FriendlyName.EndsWith("HEAD") && repoSelectedBranchs.Contains(branch.FriendlyName))
+
+                    string inspectedBranch = branch.FriendlyName;
+                    if(inspectedBranch.Contains("origin/"))
                     {
-                        AnalyzeNewCommits(branch, repName, folder.Key);
-                        SlaAnalyzer(branch, repName);
+                        inspectedBranch = inspectedBranch.Remove(0, 7);
+                        if (!branch.FriendlyName.EndsWith("HEAD") && (repoSelectedBranchs.Contains(inspectedBranch) || repoSelectedBranchs.Contains(inspectedBranch)))
+                        {
+                            AnalyzeNewCommits(branch, inspectedBranch, repName, folder.Key, logger);
+                            SlaAnalyzer(branch, repName, logger);
+                        }
                     }
+
                 }
 
                 
@@ -96,13 +103,14 @@ namespace CodeReviewService.Application
             return reposLinks;
         }
 
-        private void AnalyzeNewCommits(Branch branch, string repoName, string repoLink)
+        private void AnalyzeNewCommits(Branch branch,string branchName, string repoName, string repoLink, ILogger logger)
         {
 
             LibGit2Sharp.Commit lastCommit = branch.Commits.ElementAtOrDefault(0);
             DateTime lastCommitDate = lastCommit.Author.When.DateTime;
-            (DateTime, string) dbLastCommitDateAndId = commitService.GetLastCommitDateAndId(branch.FriendlyName, repoName);
-            int idBranch = branchService.GetBranchId(branch.FriendlyName, repoName);
+
+            (DateTime, string) dbLastCommitDateAndId = commitService.GetLastCommitDateAndId(branchName, repoName);
+            int idBranch = branchService.GetBranchId(branchName, repoName);
 
             if (dbLastCommitDateAndId.Item2 == null && idBranch != -1 )
                 commitService.InsertLastCommit(new Models.Commit(lastCommit.Id.ToString(), lastCommit.Message, lastCommit.Author.Name, lastCommitDate), idBranch);
@@ -110,12 +118,12 @@ namespace CodeReviewService.Application
 
             if (lastCommitDate.CompareTo(dbLastCommitDateAndId.Item1) > 0)
             {
-                SendCommitEmail(branch, repoName, lastCommit, repoLink);
+                SendCommitEmail(branch, repoName, lastCommit, repoLink, logger);
                 commitService.UpdateLastCommit(new Models.Commit(lastCommit.Id.ToString(), lastCommit.Message, lastCommit.Author.Name, lastCommitDate), dbLastCommitDateAndId.Item2);
             }
         }
 
-        private void SlaAnalyzer(Branch branch, string repoName)
+        private void SlaAnalyzer(Branch branch, string repoName, ILogger logger)
         {
             LibGit2Sharp.Commit lastCommit = branch.Commits.ElementAtOrDefault(0);
             DateTime lastCommitDate = lastCommit.Author.When.DateTime;
@@ -123,11 +131,11 @@ namespace CodeReviewService.Application
 
             if (lastCommitDate.CompareTo(slaCommitDate) > 0)
             {
-                SendSlaEmail(branch, repoName);
+                SendSlaEmail(branch, repoName, logger);
             }
         }
 
-        private void SendCommitEmail(Branch branch, string repoName, LibGit2Sharp.Commit newCommit, string link)
+        private void SendCommitEmail(Branch branch, string repoName, LibGit2Sharp.Commit newCommit, string link, ILogger logger)
         {
             if (link.EndsWith(".git"))
                 link = link.Remove(link.Length - 4, 4);
@@ -147,10 +155,10 @@ namespace CodeReviewService.Application
             Console.WriteLine("\n");
 
             var email = branchService.GetBranchEmailsAdress(branch.FriendlyName, repoName);
-            emailOperations.SendNewCommitEmail(conteudo, newCommit.Author.Name, branch.FriendlyName, email.Item2);
+            emailOperations.SendNewCommitEmail(conteudo, newCommit.Author.Name, branch.FriendlyName, email.Item2, logger);
         }
 
-        private void SendSlaEmail(Branch branch, string repoName)
+        private void SendSlaEmail(Branch branch, string repoName, ILogger logger)
         {
             var conteudo =
                 $"Atenção dev, dentro repositório {repoName}, a branch {branch.FriendlyName}\nnão recebe um novo commit dentro do prazo limite";
@@ -161,7 +169,7 @@ namespace CodeReviewService.Application
 
 
             var email = branchService.GetBranchEmailsAdress(branch.FriendlyName, repoName);
-            emailOperations.SendSlaEmail(conteudo, email, branch.FriendlyName);
+            //emailOperations.SendSlaEmail(conteudo, email, branch.FriendlyName, logger);
         }
 
         private void DownloadRepo(Models.CloneConfig config, ILogger logger)
