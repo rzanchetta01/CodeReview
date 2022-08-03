@@ -169,7 +169,7 @@ namespace CodeReviewService.Application
 
 
             var email = branchService.GetBranchEmailsAdress(branch.FriendlyName, repoName);
-            //emailOperations.SendSlaEmail(conteudo, email, branch.FriendlyName, logger);
+            emailOperations.SendSlaEmail(conteudo, email, branch.FriendlyName, logger);
         }
 
         private void DownloadRepo(Models.CloneConfig config, ILogger logger)
