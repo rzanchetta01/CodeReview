@@ -129,7 +129,7 @@ namespace CodeReviewService.Application
             DateTime lastCommitDate = lastCommit.Author.When.DateTime;
             DateTime slaCommitDate = slaService.GetSlaCommitDate(repoName);
 
-            if (lastCommitDate.CompareTo(slaCommitDate) > 0)
+            if (lastCommitDate.CompareTo(slaCommitDate) < 0 && !slaCommitDate.ToShortDateString().Equals(DateTime.Today.ToShortDateString()))
             {
                 SendSlaEmail(branch, repoName, logger);
             }
@@ -141,17 +141,26 @@ namespace CodeReviewService.Application
                 link = link.Remove(link.Length - 4, 4);
 
             string url = @$"{link}" + @$"/commit/{newCommit.Id}?refName=refs%2Fheads%2F{branch.FriendlyName}";
+            string aprovarUrl = "http://localhost:9798/api/FeedBackCommit/aprovado/"+ newCommit.Id +"/commit-aprovado-7876";
+            string reprovarUrl = "http://localhost:9798/api/FeedBackCommit/" + newCommit.Id;
 
-            var conteudo =
-            $"Um novo commit foi registrado\n" +
-            $"{newCommit.Author.Name.Trim()} | {newCommit.Author.Email.Trim()} " +
-            $"{newCommit.Author.When.DateTime} \n" +
-            $"{newCommit.MessageShort.Trim()} |" +
-            $"{branch.FriendlyName.Trim()} " +
-            $"{url.Trim()}";
+            var conteudo = ""
+        +       "<body>"
+        +           "<div>"
+        +               "<h2>Um novo commit foi registrado</h2>" 
+        +           "</div>"
+        +           "<div>"
+        +               $"autor: {newCommit.Author.Name} | email: {newCommit.Author.Email} | data: {newCommit.Author.When.DateTime} | commit: {newCommit.Message} | branch: {branch.FriendlyName} | <a id = \"link\" href = \"{url}\" target = \"_blank\">link</a>"          
+        +           "</div>"          
+        +           "<div>"
+        +               $"<a id =\"aprovar\" href=\"{aprovarUrl}\"; target = \"_blank\">APROVAR</a>"
+        +           "</div>"
+        +           "<div>"
+        +               $"<a id =\"reprovar\" href=\"{reprovarUrl}\" target = \"_blank\">REPROVAR</a>"
+        +          "</div>"
+        +       "</body>";
 
             Console.WriteLine("\nNovo commit encontrado, disparando email");
-            Console.WriteLine(conteudo);
             Console.WriteLine("\n");
 
             var email = branchService.GetBranchEmailsAdress(branch.FriendlyName, repoName);
