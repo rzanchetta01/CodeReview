@@ -60,6 +60,21 @@ END
 
 GO
 
+IF NOT EXISTS (select 1 from dbo.sysobjects where id = object_id(N'dbo.tbFeedback') and OBJECTPROPERTY(id, N'IsUserTable') = 1)
+BEGIN
+
+	CREATE TABLE [dbo].[tbFeedback](
+		[Id_feedback] [int] IDENTITY(1,1) NOT NULL,
+		[Id_commit] [varchar](50) NOT NULL,
+		[Status_resposta] [varchar](50) NOT NULL,
+		[Mensagem_feedback][varchar](700),
+		PRIMARY KEY(Id_feedback)
+	)
+	
+END
+
+GO
+
 IF NOT EXISTS(SELECT TOP 1 1 FROM tbRepositorio (NOLOCK) WHERE Nm_repositorio = 'eSeg_Vida_1841')
 BEGIN
 	INSERT INTO tbRepositorio(Nm_repositorio,
