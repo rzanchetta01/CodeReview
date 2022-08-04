@@ -17,13 +17,25 @@ namespace Api_CodeReview.Service
             repository = new(context);
         }
 
-        public void PostFeedback(string idCommit, string feedback)
+        public void PostFeedback(string idCommit, string feedback, string status_resposta)
         {
+            if (idCommit is null)
+                throw new Exception("id Commit está em branco");
+
+            if (repository.FeedbackExist(idCommit))
+                throw new Exception("ja existe um feedback para esse commit");
+
+            if (status_resposta is null)
+                throw new Exception("Status da resposta ao commit não encontrado");
+
+            if (feedback is null)
+                feedback = string.Empty;
+
             FeedbackCommit feedbackCommit = new();
-            feedbackCommit.Id_Commit = idCommit;
-            feedbackCommit.Status_resposta = "feedback enviado";
-            feedbackCommit.Feedback = feedback;
-            feedbackCommit.Id = 0;
+            feedbackCommit.Id_Commit = idCommit.Trim();
+            feedbackCommit.Status_resposta = status_resposta;
+            feedbackCommit.Mensagem_feedback = feedback?.Trim();
+            feedbackCommit.Id_feedback = 0;
 
             repository.PostFeedback(feedbackCommit);
         }

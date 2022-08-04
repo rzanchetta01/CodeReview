@@ -19,30 +19,29 @@ namespace Api_CodeReview.Controllers
             service = new(context);
         }
 
-        [HttpGet("{idCommit}/{feedback}")]
-        public ContentResult PostFeedback(string idCommit, string feedback)
+        [HttpGet("{status}/{idCommit}/{feedback}")]
+        public ContentResult PostFeedback(string idCommit, string? feedback, string status)
         {
             try
             {
-                service.PostFeedback(idCommit, feedback);
-                return base.Content($"<h2>COMMIT APROVADO {feedback}</h2>", "text/html");
+                if (feedback.Equals("commit-aprovado-7876"))
+                    feedback = null;
+
+                service.PostFeedback(idCommit, feedback, status);
+                return base.Content($"<h2>COMMIT APROVADO</h2>", "text/html");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return base.Content("<h2>ERRO AO APROVAR UM NOVO COMMIT</h2>", "text/html");
+                return base.Content($"<h2>ERRO AO APROVAR UM NOVO COMMIT --> {e.Message}</h2>", "text/html");
             }
         }
 
-        [HttpGet()]
-        public ContentResult GetFormFeedback()
+        [HttpGet("{idCommit}")]
+        public ContentResult GetFormFeedback(string idCommit)
         {
             string content = ""
             + "<body>"
             + " <form id = \"form\">"
-            + "      <div>"
-            + "         <li>id do commit</li>"
-            + "       <input id = \"idCommit\" type = \"text\"></input>"
-            + "     </div>"
             + "     <div style = \"margin-top:10px\">"
             + "         <li>feedback</li>"
             + "  <textarea id=\"textarea\"></textarea>"
@@ -52,10 +51,9 @@ namespace Api_CodeReview.Controllers
             + " <script type = \"text/javascript\">"
             + "     document.getElementById(\"myButton\").onclick = function() { "
             + "         var textarea = document.getElementById(\"textarea\"); "
-            + "         var idCommit = document.getElementById(\"idCommit\"); "
-            + "         if (textarea.value !== \"\" && idCommit.value !== \"\")"
+            + "         if (textarea.value !== \"\")"
             + "         {"
-            + "             location.href = \"http://localhost:9798/api/FeedBackCommit/\" + idCommit.value + \" / \" + textarea.value;"
+            + "             location.href = \"http://localhost:9798/api/FeedBackCommit/reprovado/\" + \""+ idCommit + "\" + \" / \" + textarea.value;"
             + "         }"
             + "     };"
             + " </script>"

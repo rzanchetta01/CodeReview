@@ -7,19 +7,22 @@ using System.Threading.Tasks;
 
 namespace Api_CodeReview.Models
 {
-    [Table("tbFeedbackCommit")]
+    [Table("tbFeedback")]
     public class FeedbackCommit
     {
 
         [Key]
-        public int Id { get; set; }
+        public int Id_feedback { get; set; }
         
         [Required]
+        [StringLength(50, MinimumLength = 10)]
         public string Id_Commit { get; set; }
 
         [Required]
+        [StringLength(50, MinimumLength = 5)]
         public string Status_resposta { get; set; }
 
-        public string Feedback { get; set; }
+        [StringLength(700, MinimumLength = 0)]
+        public string Mensagem_feedback { get; set; }
     }
 }
