@@ -22,6 +22,9 @@ namespace CodeReviewService.Service
         {
             try
             {
+                if (nmBranch.Contains("origin/"))
+                    nmBranch = nmBranch.Remove(0, 7);
+
                 if (!branchOperations.BranchExist(nmBranch))
                     throw new Exception("BRANCH NÃO ENCONTRADA -->" + nmBranch + " DO REPOSITORIO -->" + repoName);
 
@@ -40,6 +43,9 @@ namespace CodeReviewService.Service
         {
             try
             {
+                if (nmBranch.Contains("origin/"))
+                    nmBranch = nmBranch.Remove(0, 7);
+
                 if (!branchOperations.BranchExist(nmBranch))
                     throw new Exception("BRANCH NÃO ENCONTRADA -->" + nmBranch + " DO REPOSITORIO -->" + repoName);
 
