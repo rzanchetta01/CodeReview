@@ -33,11 +33,11 @@ namespace Api_CodeReview
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || env.IsProduction() || env.IsStaging())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api_CodeReview v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/API/swagger/v1/swagger.json", "Api_CodeReview v1"));
             }
 
             app.UseRouting();
