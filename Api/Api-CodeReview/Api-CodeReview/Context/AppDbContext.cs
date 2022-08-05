@@ -12,6 +12,7 @@ namespace Api_CodeReview.Context
         public DbSet<Commit> Commits { get; set; }
         public DbSet<Branch> Branchs { get; set; }
         public DbSet<SLA> SLAS { get; set; }
+        public DbSet<FeedbackCommit> FeedbackCommits { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
