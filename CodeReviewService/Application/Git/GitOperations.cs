@@ -141,8 +141,8 @@ namespace CodeReviewService.Application
                 link = link.Remove(link.Length - 4, 4);
 
             string url = @$"{link}" + @$"/commit/{newCommit.Id}?refName=refs%2Fheads%2F{branch.FriendlyName}";
-            string aprovarUrl = "http://localhost:9798/api/FeedBackCommit/aprovado/"+ newCommit.Id +"/commit-aprovado-7876";
-            string reprovarUrl = "http://localhost:9798/api/FeedBackCommit/" + newCommit.Id;
+            string aprovarUrl = "http://10.80.10.5:88/API/api/FeedBackCommit/aprovado/" + newCommit.Id +"/commit-aprovado-7876";
+            string reprovarUrl = "http://10.80.10.5:88/API/api/FeedBackCommit/" + newCommit.Id;
 
             var conteudo = ""
         +       "<body>"
