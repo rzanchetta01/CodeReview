@@ -53,7 +53,7 @@ namespace Api_CodeReview.Controllers
             + "         var textarea = document.getElementById(\"textarea\"); "
             + "         if (textarea.value !== \"\")"
             + "         {"
-            + "             location.href = \"http://localhost:9798/api/FeedBackCommit/reprovado/\" + \""+ idCommit + "\" + \" / \" + textarea.value;"
+            + "             location.href = \"http://10.80.10.5:88/API/api/FeedBackCommit/reprovado/\" + \"" + idCommit + "\" + \" / \" + textarea.value;"
             + "         }"
             + "     };"
             + " </script>"
