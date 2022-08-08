@@ -19,8 +19,8 @@ namespace CodeReviewService.Util
             Service.CommitService commitService = new(repositorioService, branchService);
             Service.SlaService slaService = new(repositorioService);
 
-            Application.GitOperations gitOperations = new(emailOperations, branchService, commitService,
-                slaService, repositorioService);
+            Application.GitAnalisys gitAnalysis = new(emailOperations, branchService, commitService, slaService);
+            Application.GitOperations gitOperations = new(repositorioService, gitAnalysis);
 
             gitOperations.ReadAllRepos(logger);
         }
