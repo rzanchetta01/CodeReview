@@ -55,6 +55,44 @@ namespace CodeReviewService.Infra.Database.Sla
             return result;
         }
 
+        public DateTime GetSlaReviewDate(string repoName)
+        {
+            DateTime result = DateTime.Now;// se não achar resultado retorna a data mais recente possivel
+            using SqlConnection conn = new(connString);
+
+            SqlParameter pRepoName = CreateParam("@repoName", repoName);
+
+            string cmd = @"SELECT s.Nr_dias_sla_review FROM tbSLA s (nolock)
+	                            JOIN tbRepositorio r (nolock)
+                            ON s.id_repositorio = r.Id_repositorio
+	                            WHERE r.Nm_repositorio = @repoName";
+
+            using SqlCommand command = new(cmd, conn);
+            command.Parameters.Add(pRepoName);
+
+            try
+            {
+                conn.Open();
+                using SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int dayLimit = reader.GetInt32(0);
+                    result = DateTime.Now.AddDays(-dayLimit);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("ERRO AO PEGAR DATA SLA COMMIT DO REPOSITORIO: " + repoName + "\n" + e.Message);
+            }
+            finally
+            {
+                conn.Close();
+            }
+
+            return result;
+        }
+
         public bool SlaExist(string repoName)
         {
             using SqlConnection conn = new(connString);
@@ -74,7 +112,8 @@ namespace CodeReviewService.Infra.Database.Sla
                 string data = null;
                 while (reader.Read())
                 {
-                    data = (string)reader[0];
+                    if(reader[0] is not DBNull)
+                        data = (string)reader[0];
                 }
 
                 if (!data.Equals(null))
