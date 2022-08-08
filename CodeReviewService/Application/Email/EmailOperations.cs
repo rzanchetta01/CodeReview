@@ -15,7 +15,24 @@ namespace CodeReviewService.Application
         {
 
         }
+        public void SendNewCommitNotReviewed(ReviewSla content, string body)
+        {
+            BaseEmail bs = new();
+            bs.IsHtml = true;
+            bs.Conteudo = body;
 
+            BaseEmailConfig bsc = new();
+            bsc.Usuario = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.Senha = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["password"]);
+            bsc.Prioridade = MailPriority.High;
+            bsc.Titulo = "NÃO SE ESQUEÇA DE REVISAR O COMMIT";
+            bsc.To = new string[] { Service.CriptografiaService.Decrypt(content.EmailReview) };
+            bsc.Cc = new string[] { Service.CriptografiaService.Decrypt(content.EmailAdmin) };
+            bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
+
+            SendEmail(bsc, bs, null);
+        }
         public void SendNewCommitEmail(string conteudo, string autor, string branch, string reviewEmail, ILogger logger)
         {
             BaseEmail bs = new();

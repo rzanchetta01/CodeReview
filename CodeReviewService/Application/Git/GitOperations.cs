@@ -56,6 +56,8 @@ namespace CodeReviewService.Application
                     }
                 }                
             }
+
+            analisys.AnalyzeNotReviewedCommits();
         }
 
         private Dictionary<string, string> ListLocalRepos(ILogger logger)
