@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CodeReviewService.Models
 {
-    class ReviewSla
+    public class ReviewSla
     {
         public string LinkRepo { get; set; }
         public string EmailAdmin { get; set; }

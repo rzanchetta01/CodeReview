@@ -7,13 +7,13 @@ using System.Text;
 
 namespace CodeReviewService.Application
 {
-    class EmailOperations
+    public class EmailOperations
     {
         private readonly string hostEmail = "smtp-mail.outlook.com";
-
-        public EmailOperations()
+        private readonly ILogger<EmailOperations> logger;
+        public EmailOperations(ILogger<EmailOperations> logger)
         {
-
+            this.logger = logger;
         }
         public void SendNewCommitNotReviewed(ReviewSla content, string body)
         {
@@ -31,9 +31,9 @@ namespace CodeReviewService.Application
             bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
             bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
 
-            SendEmail(bsc, bs, null);
+            SendEmail(bsc, bs);
         }
-        public void SendNewCommitEmail(string conteudo, string autor, string branch, string reviewEmail, ILogger logger)
+        public void SendNewCommitEmail(string conteudo, string autor, string branch, string reviewEmail)
         {
             BaseEmail bs = new();
             bs.IsHtml = true;
@@ -49,10 +49,10 @@ namespace CodeReviewService.Application
             bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
             bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
 
-            SendEmail(bsc, bs, logger);
+            SendEmail(bsc, bs);
         }
 
-        public void SendSlaEmail(string conteudo, (string,string) devResponsavelAndSupervisor, string branch, ILogger logger)
+        public void SendSlaEmail(string conteudo, (string,string) devResponsavelAndSupervisor, string branch)
         {
 
             BaseEmail bs = new();
@@ -70,16 +70,16 @@ namespace CodeReviewService.Application
             bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
             bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
 
-            SendEmail(bsc, bs, logger);
+            SendEmail(bsc, bs);
         }
 
-        private void SendEmail(BaseEmailConfig baseEmailConfig, BaseEmail baseEmail, ILogger logger)
+        private void SendEmail(BaseEmailConfig baseEmailConfig, BaseEmail baseEmail)
         {
-            MailMessage msg = ConstructEmail(baseEmailConfig, baseEmail, logger);
-            Send(msg, baseEmailConfig, logger);
+            MailMessage msg = ConstructEmail(baseEmailConfig, baseEmail);
+            Send(msg, baseEmailConfig);
         }
 
-        private MailMessage ConstructEmail(BaseEmailConfig baseEmailConfig, BaseEmail email, ILogger logger)
+        private MailMessage ConstructEmail(BaseEmailConfig baseEmailConfig, BaseEmail email)
         {
             try
             {
@@ -121,7 +121,7 @@ namespace CodeReviewService.Application
 
         }
 
-        private void Send(MailMessage msg, BaseEmailConfig baseEmailConfig, ILogger logger)
+        private void Send(MailMessage msg, BaseEmailConfig baseEmailConfig)
         {
             SmtpClient client = new();
             client.UseDefaultCredentials = false;
@@ -135,15 +135,18 @@ namespace CodeReviewService.Application
             try
             {
                 client.Send(msg);
+                Console.WriteLine("EMAIL ENVIADO\n");
             }
             catch (Exception e)
             {
                 Console.WriteLine("ERRO AO ENVIAR EMAIL: {0}", e.Message);
                 logger.LogWarning("ERRO AO ENVIAR EMAIL: {0}", e.Message);
             }
-            msg.Dispose();
-            Console.WriteLine("EMAIL ENVIADO\n");
-            System.Threading.Thread.Sleep(TimeSpan.FromMinutes(3));//Delay para evitar spam
+            finally
+            {
+                msg.Dispose();
+                System.Threading.Thread.Sleep(TimeSpan.FromMinutes(3));//Delay para evitar spam
+            }
         }
 
     }

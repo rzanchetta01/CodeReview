@@ -10,30 +10,30 @@ using System.Linq;
 
 namespace CodeReviewService.Application
 {
-    class GitOperations
+    public class GitOperations
     {
         private readonly RepositorioService repositorioService;
         private readonly GitAnalisys analisys;
+        private readonly ILogger<GitOperations> logger;
 
-        public GitOperations(RepositorioService repositorioService, GitAnalisys analisys)
+        public GitOperations(RepositorioService repositorioService, GitAnalisys analisys, ILogger<GitOperations> logger)
         {
+            this.logger = logger;
             this.repositorioService = repositorioService;
             this.analisys = analisys;
         }
 
-        public void ReadAllRepos(ILogger logger)
+        public void ReadAllRepos()
         {
             Console.WriteLine($"ANALISANDO REPOSITORIOS");
-            logger.LogInformation("ANALISANDO REPOSITORIOS");
 
-            foreach (var folder in ListLocalRepos(logger))
+            foreach (var folder in ListLocalRepos())
             {
 
                 var repName = folder.Value;
                 repName = repName.Remove(0, Util.Tools.GetReposPath().Length + 1);
 
                 Console.WriteLine("GIT PULL IN REP --> " + repName);
-                logger.LogWarning("GIT PULL IN REP --> " + repName);
 
                 Util.Tools.CmdCommand(@$"/C cd {Util.Tools.GetReposPath()} && cd {repName} && git pull", logger);
 
@@ -50,8 +50,8 @@ namespace CodeReviewService.Application
                         inspectedBranch = inspectedBranch.Remove(0, 7);
                         if (!branch.FriendlyName.EndsWith("HEAD") && (repoSelectedBranchs.Contains(inspectedBranch) || repoSelectedBranchs.Contains(inspectedBranch)))
                         {
-                            analisys.AnalyzeNewCommits(branch, inspectedBranch, repName, folder.Key, logger);
-                            analisys.SlaCommitAnalyzer(branch, repName, logger);
+                            analisys.AnalyzeNewCommits(branch, inspectedBranch, repName, folder.Key);
+                            analisys.SlaCommitAnalyzer(branch, repName);
                         }
                     }
                 }                
@@ -60,18 +60,17 @@ namespace CodeReviewService.Application
             analisys.AnalyzeNotReviewedCommits();
         }
 
-        private Dictionary<string, string> ListLocalRepos(ILogger logger)
+        private Dictionary<string, string> ListLocalRepos()
         {
             Dictionary<string, string> reposLinks = new();
             List<CloneConfig> dbLinks = repositorioService.GetRepositoriesData();
             Console.WriteLine($"BUSCANDO REPOSITORIOS");
-            logger.LogWarning("BUSCANDO REPOSITORIOS");
 
             foreach (var item in dbLinks)
             {
                 Console.Write(item.RepoName + "\n");
                 logger.LogWarning(item.ToString());
-                DownloadRepo(item, logger);
+                DownloadRepo(item);
             }
 
             string[] repos = Directory.GetDirectories(Util.Tools.GetReposPath());
@@ -94,7 +93,7 @@ namespace CodeReviewService.Application
             return reposLinks;
         }
 
-        private void DownloadRepo(Models.CloneConfig config, ILogger logger)
+        private void DownloadRepo(Models.CloneConfig config)
         {
             if (config.Url.StartsWith("https"))
                 config.Url = config.Url[8..];

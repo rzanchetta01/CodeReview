@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CodeReviewService.Infra.Database.Feedback
 {
-    interface IFeedbackRepositoryOperations
+    interface FeedbackRepositoryOperations
     {
         IEnumerable<ReviewSla> GetAllFeedbacks();
         void PostFeedback(string IdCommit, int IdBranch);

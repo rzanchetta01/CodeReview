@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
@@ -8,12 +9,14 @@ using System.Threading.Tasks;
 
 namespace CodeReviewService.Infra.Database.Sla
 {
-    class SlaOperations : ISlaOperations
+    public class SlaOperations : ISlaOperations
     {
         private readonly string connString;
+        private readonly ILogger<SlaOperations> logger;
 
-        public SlaOperations()
+        public SlaOperations(ILogger<SlaOperations> logger)
         {
+            this.logger = logger;
             connString = Criptografia.Decrypt(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
         }
 
@@ -46,6 +49,7 @@ namespace CodeReviewService.Infra.Database.Sla
             catch (Exception e)
             {
                 Console.WriteLine("ERRO AO PEGAR DATA SLA COMMIT DO REPOSITORIO: " + repoName + "\n" + e.Message);
+                logger.LogWarning("ERRO AO PEGAR DATA SLA COMMIT DO REPOSITORIO: " + repoName + "\n" + e.Message);
             }
             finally
             {
@@ -84,6 +88,7 @@ namespace CodeReviewService.Infra.Database.Sla
             catch (Exception e)
             {
                 Console.WriteLine("ERRO AO PEGAR DATA SLA COMMIT DO REPOSITORIO: " + repoName + "\n" + e.Message);
+                logger.LogWarning("ERRO AO PEGAR DATA SLA COMMIT DO REPOSITORIO: " + repoName + "\n" + e.Message);
             }
             finally
             {
@@ -123,8 +128,9 @@ namespace CodeReviewService.Infra.Database.Sla
 
                 return false;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                logger.LogWarning("ERROR SLA EXIST : " + e.Message);
                 return false;
             }
             finally

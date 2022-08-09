@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace CodeReviewService.Infra.Database.Feedback
 {
-    class FeedbackRepository : IFeedbackRepositoryOperations
+    public class FeedbackRepository : FeedbackRepositoryOperations
     {
         private readonly string connString;
-        private readonly ILogger logger;
+        private readonly ILogger<FeedbackRepository> logger;
 
-        public FeedbackRepository(ILogger logger)
+        public FeedbackRepository(ILogger<FeedbackRepository> logger)
         {
             connString = Criptografia.Decrypt(ConfigurationManager.ConnectionStrings["DB"].ConnectionString);
             this.logger = logger;
@@ -41,7 +41,8 @@ namespace CodeReviewService.Infra.Database.Feedback
             }
             catch(Exception e)
             {
-                Console.WriteLine("ERROR -->" + e.Message);
+                Console.WriteLine("ERRO EM FEEDBACK EXIST :" + e.Message);
+                logger.LogWarning("ERRO EM FEEDBACK EXIST :" + e.Message);
                 return false;
             }
             finally
@@ -100,8 +101,8 @@ namespace CodeReviewService.Infra.Database.Feedback
             }
             catch (Exception e)
             {
-                logger.LogWarning("ERROR GET ALL FEEDBACK -> "+e.Message);
-                Console.WriteLine(e.Message);
+                logger.LogWarning("ERROR GET ALL FEEDBACK -> "+ e.Message);
+                Console.WriteLine("ERROR GET ALL FEEDBACK -> " + e.Message);
                 return null;
             }
             finally
@@ -132,6 +133,7 @@ namespace CodeReviewService.Infra.Database.Feedback
             catch (Exception e)
             {
                 logger.LogWarning("ERROR POSTING FEEDBACK -> " + e.Message);
+                Console.WriteLine("ERROR POSTING FEEDBACK -> " + e.Message);
             }
             finally
             {

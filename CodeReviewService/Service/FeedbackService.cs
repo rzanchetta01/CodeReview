@@ -9,12 +9,14 @@ using System.Threading.Tasks;
 
 namespace CodeReviewService.Service
 {
-    class FeedbackService
+    public class FeedbackService
     {
-        private readonly IFeedbackRepositoryOperations repository;
-        public FeedbackService(ILogger logger)
+        private readonly FeedbackRepositoryOperations repository;
+        private readonly ILogger<FeedbackService> logger;
+        public FeedbackService(ILogger<FeedbackService> logger, FeedbackRepository repository)
         {
-            repository = new FeedbackRepository(logger);
+            this.logger = logger;
+            this.repository = repository;
         }
         public void PostInitialBaseFeedback(string IdCommit, int IdBranch)
         {
@@ -28,6 +30,7 @@ namespace CodeReviewService.Service
             catch (Exception e)
             {
                 Console.WriteLine("ERROR --> " + e.Message);
+                logger.LogWarning("ERROR --> " + e.Message);
             }
         }
 
@@ -52,6 +55,7 @@ namespace CodeReviewService.Service
             catch (Exception e)
             {
                 Console.WriteLine("ERROR --> " + e.Message);
+                logger.LogWarning("ERROR --> " + e.Message);
                 return null;
             }
         }
