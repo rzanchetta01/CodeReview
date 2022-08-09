@@ -16,6 +16,9 @@ namespace CodeReviewService.Models
         public DateTime DtFeedback { get; set; }
         public string IdCommit { get; set; }
         public string NmBranch { get; set; }
+        public string StatusResposta { get; set; }
+        public string MsgFeedback { get; set; }
+        public string EmailDev { get; set; }
 
         public ReviewSla()
         {

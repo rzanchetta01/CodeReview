@@ -43,12 +43,7 @@ namespace CodeReviewService.Service
                 if (content is null)
                     throw new Exception("Nenhum feedback encontrado");
 
-                content = content.Where(x => x.DtFeedback != DateTime.MinValue).ToList();
-
-                foreach (var item in content)
-                {
-                    Console.WriteLine(item.ToString());
-                }
+                content = content.Where(x => x.StatusResposta != null).ToList();
 
                 return content;
             }
@@ -58,6 +53,11 @@ namespace CodeReviewService.Service
                 logger.LogWarning("ERROR --> " + e.Message);
                 return null;
             }
+        }
+        
+        public IEnumerable<ReviewSla> GetFeedbackReviewed()
+        {
+            return repository.GetReviewedFeedback();
         }
     }
 }

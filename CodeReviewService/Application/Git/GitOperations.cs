@@ -58,6 +58,7 @@ namespace CodeReviewService.Application
             }
 
             analisys.AnalyzeNotReviewedCommits();
+            analisys.AnalyzeReviewedCommits();
         }
 
         private Dictionary<string, string> ListLocalRepos()

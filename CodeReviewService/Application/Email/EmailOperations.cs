@@ -15,6 +15,26 @@ namespace CodeReviewService.Application
         {
             this.logger = logger;
         }
+
+        public void SendNewCommitReviewed(ReviewSla content, string msg)
+        {
+            BaseEmail bs = new();
+            bs.IsHtml = false;
+            bs.Conteudo = msg;
+
+            BaseEmailConfig bsc = new();
+            bsc.Usuario = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.Senha = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["password"]);
+            bsc.Prioridade = MailPriority.Normal;
+            bsc.Titulo = "UM COMMIT SEU FOI AVALIADO";
+            bsc.To = new string[] { Service.CriptografiaService.Decrypt(content.EmailDev) };
+            bsc.Cc = new string[] { Service.CriptografiaService.Decrypt(content.EmailAdmin) };
+            bsc.From = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["username"]);
+            bsc.FromNome = Service.CriptografiaService.Decrypt(ConfigurationManager.AppSettings["name"]);
+
+            SendEmail(bsc, bs);
+        }
+
         public void SendNewCommitNotReviewed(ReviewSla content, string body)
         {
             BaseEmail bs = new();

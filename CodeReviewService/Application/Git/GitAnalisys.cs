@@ -47,6 +47,8 @@ namespace CodeReviewService.Application
             {
                 SendCommitEmail(branch, repoName, lastCommit, repoLink);
                 commitService.UpdateLastCommit(new Models.Commit(lastCommit.Id.ToString(), lastCommit.Message, lastCommit.Author.Name, lastCommitDate), dbLastCommitDateAndId.Item2);
+
+                feedbackService.PostInitialBaseFeedback(lastCommit.Id.ToString(), idBranch);
             }
         }
 
@@ -59,13 +61,34 @@ namespace CodeReviewService.Application
             if (lastCommitDate.CompareTo(slaCommitDate) < 0 && !slaCommitDate.ToShortDateString().Equals(DateTime.Today.ToShortDateString()))
             {
                 SendSlaCommitEmail(branch, repoName);
+            }
+        }
 
-                string nmBranch = branch.FriendlyName;
-                if (nmBranch.StartsWith("origin/"))
-                    nmBranch = nmBranch.Remove(0, 7);
+        public void AnalyzeNotReviewedCommits()
+        {
+            var result = feedbackService.GetFeedbackNotReviwed();
 
-                var idBranch = branchService.GetBranchId(nmBranch, repoName);
-                feedbackService.PostInitialBaseFeedback(lastCommit.Id.ToString(), idBranch);
+            if (result is not null)
+            {
+                foreach (var item in result)
+                {
+                    if (item.DtRegistro.CompareTo(item.DtSla) < 0)
+                        SendAnalyzeNotReviewdCommits(item);
+                }
+            }
+        }
+
+        public void AnalyzeReviewedCommits()
+        {
+            var result = feedbackService.GetFeedbackReviewed();
+
+            if (result is not null)
+            {
+                foreach (var item in result)
+                {
+                    if (item.DtFeedback.CompareTo(DateTime.Today.AddDays(-2)) > 0)
+                        SendAnalyzeReviewedCommits(item);
+                }
             }
         }
 
@@ -114,18 +137,19 @@ namespace CodeReviewService.Application
             emailOperations.SendSlaEmail(conteudo, email, branch.FriendlyName);
         }
 
-        public void AnalyzeNotReviewedCommits()
+        private void SendAnalyzeReviewedCommits(ReviewSla content)
         {
-            var result = feedbackService.GetFeedbackNotReviwed();
+            if (content.LinkRepo.EndsWith(".git"))
+                content.LinkRepo = content.LinkRepo.Remove(content.LinkRepo.Length - 4, 4);
 
-            if(result is not null)
-            {
-                foreach (var item in result)
-                {
-                    if(item.DtRegistro.CompareTo(item.DtSla) < 0)
-                        SendAnalyzeNotReviewdCommits(item);
-                }
-            }
+            string url = @$"{content.LinkRepo}" + @$"/commit/{content.IdCommit}?refName=refs%2Fheads%2F{content.NmBranch}";
+
+            string msg = $"Olá dev, o seu commit : {url}\n";
+            msg += $"foi {content.StatusResposta}\n";
+            if(content.MsgFeedback is not null)
+                msg += $"com o feedback : {content.MsgFeedback}";
+
+            emailOperations.SendNewCommitReviewed(content, msg);
         }
 
         private void SendAnalyzeNotReviewdCommits(ReviewSla content)

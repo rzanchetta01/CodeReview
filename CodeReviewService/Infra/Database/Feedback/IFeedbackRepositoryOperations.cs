@@ -12,5 +12,6 @@ namespace CodeReviewService.Infra.Database.Feedback
         IEnumerable<ReviewSla> GetAllFeedbacks();
         void PostFeedback(string IdCommit, int IdBranch);
         bool FeedbackExist(string IdCommit);
+        IEnumerable<ReviewSla> GetReviewedFeedback();
     }
 }

@@ -56,7 +56,7 @@ namespace CodeReviewService.Infra.Database.Feedback
             List<ReviewSla> result = new();
 
             string cmd = @"
-            SELECT r.Nm_url_clone, r.Nm_email_admin, b.Nm_email_review, f.Dt_registro, s.Nr_dias_sla_review, c.Id_Commit, b.Nm_branch, f.Dt_feedback
+            SELECT r.Nm_url_clone, r.Nm_email_admin, b.Nm_email_review, f.Dt_registro, s.Nr_dias_sla_review, c.Id_Commit, b.Nm_branch, f.Status_resposta, f.Dt_feedback
                 FROM tbRepositorio r (nolock)
 	                JOIN tbBranch b (nolock)
                 ON r.Id_repositorio = b.Id_repositorio
@@ -90,8 +90,11 @@ namespace CodeReviewService.Infra.Database.Feedback
                     _result.IdCommit = (string)reader[5];
                     _result.NmBranch = (string)reader[6];
 
-                    if (reader[7] is not DBNull)
-                        _result.DtFeedback = (DateTime)reader[7];
+                    if(reader[7] is not DBNull)
+                        _result.StatusResposta = (string)reader[7];
+
+                    if (reader[8] is not DBNull)
+                        _result.DtFeedback = (DateTime)reader[8];
 
 
                     result.Add(_result);
@@ -111,19 +114,80 @@ namespace CodeReviewService.Infra.Database.Feedback
             }
         }
 
+        public IEnumerable<ReviewSla> GetReviewedFeedback()
+        {
+            List<ReviewSla> result = new();
+
+            string cmd = @"
+            	SELECT r.Nm_url_clone, b.Nm_branch, r.Nm_email_admin, c.Id_Commit, b.Nm_email_dev, f.Mensagem_feedback, f.Status_resposta, f.Dt_feedback
+	                FROM tbFeedback f (nolock)
+		                JOIN tbBranch b (nolock)
+	                ON f.Id_branch = b.Id_branch
+		                JOIN tbCommit c (nolock)
+	                ON c.Id_branch = b.Id_branch
+		                JOIN tbRepositorio r (nolock)
+	                ON r.Id_repositorio = b.Id_repositorio
+	                WHERE f.Status_resposta IS NOT NULL
+            ";
+
+            using SqlConnection conn = new(connString);
+            using SqlCommand command = new(cmd, conn);
+
+            try
+            {
+                conn.Open();
+                using SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    ReviewSla _result = new();
+
+                    _result.LinkRepo = (string)reader[0];
+                    _result.NmBranch = (string)reader[1];
+                    _result.EmailAdmin = (string)reader[2];
+                    _result.IdCommit = (string)reader[3];
+                    _result.EmailDev = (string)reader[4];
+
+                    if(reader[5] is not DBNull)
+                        _result.MsgFeedback = (string)reader[5];
+
+                    _result.StatusResposta = (string)reader[6];
+
+                    if (reader[7] is not DBNull)
+                        _result.DtFeedback = (DateTime)reader[7];
+
+
+                    result.Add(_result);
+                }
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning("ERROR GET ALL FEEDBACK -> " + e.Message);
+                Console.WriteLine("ERROR GET ALL FEEDBACK -> " + e.Message);
+                return null;
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
         public void PostFeedback(string IdCommit, int IdBranch)
         {
             SqlParameter pIdCommit = new("@Id_commit", IdCommit);
             SqlParameter pIdBranch = new("@Id_branch", IdBranch);
             SqlParameter pDtRegistro = new("@Dt_registro", DateTime.Now);
+            SqlParameter pDtFeedback = new("@Dt_feedback", "1753/1/1 12:00:00");//menor valor possivel por conta do datetime do .net não suportar null
 
-            string cmd = @"insert into tbFeedback(Id_commit, Dt_registro, Id_branch) values (@Id_commit, @Dt_registro, @Id_branch)";
+            string cmd = @"insert into tbFeedback(Id_commit, Dt_registro, Id_branch, Dt_feedback) values (@Id_commit, @Dt_registro, @Id_branch, @Dt_feedback)";
 
             using SqlConnection conn = new(connString);
             using SqlCommand command = new(cmd, conn);
             command.Parameters.Add(pIdCommit);
             command.Parameters.Add(pIdBranch);
             command.Parameters.Add(pDtRegistro);
+            command.Parameters.Add(pDtFeedback);
 
             try
             {
